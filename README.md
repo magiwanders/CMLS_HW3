@@ -2,6 +2,9 @@
 
 Consegna: 29/05/2021 23:50
 
+Jamboard:\
+https://jamboard.google.com/d/1PLlAhjHAYxr9_6H3HEQb2374CrOBBGzc-c6GGgEgq3I/edit?usp=sharing
+
 Link utili
 
 http://a-touch-of-music.blogspot.com/2013/12/virtual-choir-auto-harmonize-your-voice.html
