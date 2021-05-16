@@ -6,7 +6,7 @@ Link utili
 
 http://a-touch-of-music.blogspot.com/2013/12/virtual-choir-auto-harmonize-your-voice.html
 
-Effetti: \\
+Effetti: \
 https://github.com/michaeldzjap/MDUGens
 
 https://github.com/mkmarchan
