@@ -10,3 +10,5 @@ Effetti: \
 https://github.com/michaeldzjap/MDUGens
 
 https://github.com/mkmarchan
+
+https://www.reddit.com/r/supercollider/comments/c9wv9k/vocoders_and_autotune_devices_in_supercollider/
