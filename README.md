@@ -20,3 +20,14 @@ https://github.com/michaeldzjap/MDUGens
 https://github.com/mkmarchan
 
 https://www.reddit.com/r/supercollider/comments/c9wv9k/vocoders_and_autotune_devices_in_supercollider/
+
+Ultimi links trovati: \
+https://doc.sccode.org/Guides/Tour_of_UGens.html
+\
+http://superdupercollider.blogspot.com/2009/05/simple-phaser-effect.html
+\
+http://superdupercollider.blogspot.com/2009/05/guitar-effects.html
+\
+https://github.com/derekxkwan/dxkSynthDefs/blob/master/dxkDelayFx.scd
+\
+https://composerprogrammer.com/teaching/supercollider/sctutorial/6.4%20Effects%201.html
