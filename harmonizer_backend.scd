@@ -1,180 +1,235 @@
 s.boot;
 
+
 (
-var table;
-var gap = 40;
-var mapped, mapped2, diffbuf, diffbuf2;
-var miditoname;
-var nametomidi;
-var sound;
-var difference, difference2;
-var tf, tf2;
+// global variable containing the harmonizer
+~sound;
 
-// define a function to convert a midi note number to a midi note name
-miditoname = ({ arg note = 60, style = \American ;
-        var offset = 0 ;
-        var midi, notes;
-        case { style == \French } { offset = -1}
-            { style == \German } { offset = -3} ;
-        midi = (note + 0.5).asInteger;
-        notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-        (notes[midi%12] ++ (midi.div(12)-1+offset))
-});
+n = NetAddr("127.0.0.1", 47120);
 
-// define a function to convert a midi note name to a midi note number
-nametomidi = ({ arg name = "C4", style = \American ;
-        var offset = 0 ; // French usage: +1 ; German usage: +3
-        var twelves, ones, octaveIndex, midis;
 
-        case { style == \French } { offset = 1}
-            { style == \German } { offset = 3} ;
 
-        midis = Dictionary[($c->0),($d->2),($e->4),($f->5),($g->7),($a->9),($b->11)];
-        ones = midis.at(name[0].toLower);
+// the synth which computes the harmonizations:
 
-        if( (name[1].isDecDigit), {
-            octaveIndex = 1;
-        },{
-            octaveIndex = 2;
-            if( (name[1] == $#) || (name[1].toLower == $s) || (name[1] == $+), {
-                ones = ones + 1;
-            },{
-                if( (name[1] == $b) || (name[1].toLower == $f) || (name[1] == $-), {
-                    ones = ones - 1;
-                });
-            });
-        });
-        twelves = (name.copyRange(octaveIndex, name.size).asInteger) * 12;
+SynthDef.new("harmonizer",{
+	|
+	harmonic1, harmonic2, harmonic3,
+	voiceBus, harmonicsBus;
+	|
 
-        (twelves + 12 + ones + (offset*12))
-});
 
-// define a table of reference notes [c c# d ... b]
-table = Array.fill(12, {arg i; i + 60}); // [60,61,...,71]
-// define a table of mapped notes (Default values)
-mapped = [nametomidi.value("g3"),
-       nametomidi.value("a3"),
-       nametomidi.value("b3"),
-       nametomidi.value("bb3"),
-       nametomidi.value("c4"),
-       nametomidi.value("c4"),
-       nametomidi.value("a3"),
-       nametomidi.value("d4"),
-       nametomidi.value("e4"),
-       nametomidi.value("f4"),
-       nametomidi.value("f4"),
-       nametomidi.value("g4"),
-];
-mapped2 = [nametomidi.value("e3"),
-       nametomidi.value("g3"),
-       nametomidi.value("g3"),
-       nametomidi.value("g#3"),
-       nametomidi.value("a3"),
-       nametomidi.value("a4"),
-       nametomidi.value("d4"),
-       nametomidi.value("b4"),
-       nametomidi.value("c4"),
-       nametomidi.value("d4"),
-       nametomidi.value("d4"),
-       nametomidi.value("d4"),
-];
-
-// define a table to store the difference between reference and mapped note
-difference = Array.fill(table.size, {0});
-// define a buffer on the server for consultation from the SynthDef
-diffbuf= Buffer.loadCollection(s,table,action:{|msg| msg.postln;});
-difference2= Array.fill(table.size, {0});
-diffbuf2=Buffer.loadCollection(s,table,action:{|msg| msg.postln;});
-tf = List.new(table.size);
-tf2 = List.new(table.size);
-
-// define a window called "Setup mapping"
-w = Window.new("Setup mapping", Rect(200,200,15*gap,190));
-// add the reference notes as labels (fixed), and the mapped notes as text fields (editable)
-// whenever a text field is updated, update the list of mapped notes (mapped)
-table.do({arg item, i;
-    var t, u;
-    StaticText(w, Rect(10+gap*i, 10, gap, 30)).string_(miditoname.value(item));
-
-    t = TextField(w, Rect(10+gap*i, 50, gap, 30)).string_(miditoname.value(mapped[i]));
-    t.action = { mapped[i] = nametomidi.value(t.value); ("upper map note number " ++ i ++ " from " ++ table[i] ++ " to " ++  mapped[i]).postln;  diffbuf.set(i, (table[i] - mapped[i]).midiratio.reciprocal)};
-    tf.add(t);
-
-    u = TextField(w, Rect(10+gap*i, 90, gap, 30)).string_(miditoname.value(mapped2[i]));
-    u.action = { mapped2[i] = nametomidi.value(u.value); ("lower map note number " ++ i ++ " from " ++ table[i] ++ " to " ++ mapped2[i]).postln; diffbuf2.set(i, (table[i]-mapped2[i]).midiratio.reciprocal);
-    tf2.add(u);
-    };
-});
-// add a button to play a reference note
-c = Button(w, Rect(10,130,100,30)).states_([["Play C4",Color.black,Color.gray]]);
-c.action_({arg butt;
-    if (butt.value == 0,
-    {
-            var env = Env.perc;
-            SinOsc.ar(nametomidi.value("c4").midicps)*EnvGen.kr(env, doneAction:2)!2;
-    }.play,
-    {})
-});
-
-// also add a start/stop button
-// when the button is set to start, instantiate a new Synth, otherwise free the Synth
-b= Button(w, Rect(110,130,100,30)).states_([
-    ["Start",Color.black, Color.red],
-    ["Stop",Color.black, Color.green]]);
-b.action_({arg butt;
-    if (butt.value == 1,
-        {
-            tf.do({arg item; item.action});
-            tf2.do({arg item; item.action});
-            table.do({arg item, i;
-                difference2[i] = (table[i] - mapped2[i]).midiratio.reciprocal;
-                difference[i] = (table[i] - mapped[i]).midiratio.reciprocal;
-            });
-            diffbuf.setn(0,difference);
-            diffbuf2.setn(0,difference2);
-            sound = Synth.new("pitchFollow1");
-        },
-        {   sound.free;}
-    )
-});
-
-// define the Synth itself:
-// - first it determines the pitch of what it hears in the microphone
-// - then it harmonizes the pitch with the notes as defined in the ui
-SynthDef.new("pitchFollow1",{
     var in, amp, freq, hasFreq, out;
     var t, midinum;
-    var harmony, harmony2, partials;
+    var partials;
     in = Mix.new(SoundIn.ar([0,1]));
     amp = Amplitude.kr(in, 0.05, 1);
     # freq, hasFreq = Pitch.kr(in);
     midinum = freq.cpsmidi.round(1);
-    midinum.postln;
     freq = Lag.kr(midinum.midicps, 0.05);
-    //freq = midinum.midicps;
-    harmony2= WrapIndex.kr(diffbuf2.bufnum, midinum);
-    harmony = WrapIndex.kr(diffbuf.bufnum, midinum);
+    // freq = midinum.midicps;
+
+	n.send('/playedNote', midinum);
+
+	// the shift quantities used to compute the new pitch shifted harmonies
+	shift1 = (midinum - harmonic).midiratio.reciprocal;
+	shift2 = (midinum - harmonic2).midiratio.reciprocal;
+	shift3 = (midinum - harmonic3).midiratio.reciprocal;
+
     partials = [
-           0.5,
-           1,
-           0.5*harmony,
-           1*harmony,
-         0.5*harmony2,
-           1*harmony2,
+           0.5*shift,
+           1*shift,
+         0.5*shift2,
+           1*shift2,
+		 0.5*shift3,
+           1*shift3,
     ];
-    out = Mix.new(PitchShift.ar(in, 0.2, partials, 0, 0.004));
+
+	//split two cases: main voice (uneffected and harmonies)
+	voice = PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004);
+
+	harmonics = PitchShift.ar(in, 0.2, partials, 0, 0.004);
+
+	Out.ar(voiceBus, voice);
+	Out.ar(harmonicsBus, harmonics);
+
+}).send(s);
+
+SynthDef.new(\panning, {
+	|
+	pan;
+	|
+	input = In.ar(hBus, 6);
+
+	// pan each different track
+	input[1] = Pan2.ar(input[1], pan*1);
+	input[2] = Pan2.ar(input[2], pan*0.6);
+	input[3] = Pan2.ar(input[3], pan*0.2);
+	input[4] = Pan2.ar(input[4], -pan*1);
+	input[5] = Pan2.ar(input[5], -pan*0.6);
+	input[6] = Pan2.ar(input[6], -pan*0.2);
+	mix = Mix.new(input);
+	out = Out.ar(eBus, mix);
+
+}).send(s);
+
+SynthDef(\flangerEffect, {|rate = 1, maxDelay = 0.01, minDelay = 0.001, decayTime = 1, amp = 1, wet = 0|
+	
+	//var input = In.ar(in, 1);
+	var source = input.ar(eBus,0);
+	var flanged = CombC.ar(source, maxDelay, SinOsc.ar(rate, 0, (maxDelay * 0.5) - minDelay, (maxDelay * 0.5) + minDelay), decayTime, amp);
+	wet = OSCreceiveblablabla[0,1];
+	mixFlanged = source*(1-wet) + flanged*wet;
+	Out.ar(finalBus, mixFlanged);
+	
+}).send(s);
+
+SynthDef(\chorusEffect, {|in = 0, out = 0, rate = 1, maxDelay = 0.05, minDelay = 0.01, wet = 0, amp = 1|
+	
+	var output, num = 8;
+	var source = input.ar(eBus,0);
+	var input = source * num.reciprocal;
+	var lfos = Array.fill(num, {SinOsc.ar(rate * rrand(0.95, 1.05), rrand(0.0, 1.0), (maxDelay * 0.5) - minDelay,  (maxDelay * 0.5) + minDelay)});
+	var voices = DelayC.ar(input, maxDelay, lfos);
+	voices = Mix.ar(voices);
+	mixChorused = ((1-wet)*input) + (wet*voices);
+	Out.ar(finalBus, mixChorused);
+
+}).send(s);
+
+(
+SynthDef(\phasingEffect, {
+	
+	arg freq=0.2, wet = 0;
+	var input, effect;
+	var source = input.ar(eBus,0); //get two channels of input starting (and ending) on bus 0
+	var phased = AllpassN.ar(input,0.02,SinOsc.kr(freq,0,0.01,0.01)); //max delay of 20msec
+	mixPhased = source*(1-wet) + phased*wet;
+	Out.ar(finalBus, mixPhased); //adds to bus 0 where original signal is already playing
+	
+}).send(s);
+)
+
+(
+SynthDef(\reverbEffect, {
+	
+	arg wet = 0;
+    // play with the room size
+	var source = input.ar(eBus,0);
+    var reverb = GVerb.ar(source, 105, 5, 0.7, 0.8, 60, 0.1, 0.5, 0.4);
+	mixReverbed = reverb*wet + source*(1-wet);
+	Out.ar(finalBus, mixReverbed);
+	
+}).send(s);
+)
+
+(
+SynthDef(\delayEffect, {
+	
+	arg wet = 0;
+	var source = input.ar(eBus,0);
+	var delay = DelayL.ar(source, 0.3, MouseX.kr(0,0.3), 1, add = 0.0);
+	mixDelayed = delay*wet + source*(1-wet);
+	Out.ar(finalBus, mixDelayed);
+	// input is mixed with delay via the add input
+	
+}).send(s);
+)
+
+fl = Synth.new(\flangerEffect);
+ph = Synth.new(\phaserEffect);
+ch = Synth.new(\chorusEffect);
+rev = Synth.new(\reverbEffect);
+dl = Synth.new(\delayEffect);
+
+// VOCODER&DISTORSORE = ;
+
+SynthDef.new(\effects, {
+	|
+	param1; //flanged
+	param2;
+	param3;
+	param4;
+	param5;
+	|
+	input.ar(eBus,0);
+	
+	out = Out.ar(finalBus, ...);
+}).send(s);	
+	
+
+//final summing synth
+SynthDef.new(\finalSum, {
+	|
+	finalBus, numVoices = 8;
+	|
+
+	input = In.ar(finalBus, 1);
+
 
     7.do({
-        out = AllpassN.ar(out, 0.040, [0.040.rand,0.040.rand], 2)
+        out = AllpassN.ar(input, 0.040, [0.040.rand,0.040.rand], 2)
     });
 
-    Out.ar(0,out/partials.size)
+    Out.ar(0,out/numVoices)
+}).send(s);
 
-}).add;
 
-// make the ui visible
-w.front;
+//declare the busses and initialize the synths
+hBus = Bus.audio(s, 1);
+finalBus = Bus.audio(s,1);
+eBus = Bus.audio(s,1);
+
+x = Synth.new(\finalSum, [\finalBus, finalBus]); // 
+y = Synth.new(\panning);
+
+//the functions called after a message is received
+var harmonizerOnOff = {
+	|msg|
+	if (msg[1] == 1,
+		{
+			~sound = Synth.new(\harmonizer, [\voiceBus, finalBus, \harmonicsBus, hBus]);
+		},
+		{
+		~sound.free;
+		}
+	);
+};
+
+var setHarmonics = {
+	|msg|
+	~sound.set(\harmonic, msg[1], \harmonic2, msg[2], \harmonic3, msg[3]);
+
+};
+
+var setEffectsParameters = {
+	|msg|
+	fl.set(\wetF, msg[1]);
+	ph.set(\wetP, msg[2]);
+	ch.set(\wetC, msg[3]);
+	dl.set(\wetD, msg[4]);
+	rev.set(\wetR, msg[5]);
+	//vocoderEffect.set(\wetV, msg[6]);
+	// DISTORSIONE
+	
+};
+
+var setGain = {
+	|msg|
+	~sound.set(\gain, msg[1]);
+
+};
+var setWidth = {
+	|msg|
+	y.set(\pan, msg[1]);
+};
+
+OSCdef('onOSCreceiver', harmonizerOnOff, "/onOff");
+OSCdef('harmonicsOSCreceiver', setHarmonics, "/harmonics");
+OSCdef('gainOSCreceiver', setGain, "/gain");
+OSCdef('widthOSCreceiver', setWidth, "/width");
+OSCdef('effectsParamOSCreceiver', setEffectsParameters, "/effects");
+
 
 )
 
