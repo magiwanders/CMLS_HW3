@@ -4,30 +4,44 @@ s.boot;
 //////////////////////////////////// MODEL ///////////////////////////////////////////////////
 
 (
-// the synth which computes the harmonizations:
 
-SynthDef.new("harmonizer",{
-	|
-	harmonic1, harmonic2, harmonic3,
-	voiceBus, harmonicsBus, gain = 0;
-	|
+// This synth tracks the note sung by the user and sends it to the GUI
 
-    var in, amp, freq, hasFreq;
-    var t, midinum;
-    var partials;
-    in = Mix.new(SoundIn.ar([0,1]));
+SynthDef.new(\voiceTracker, {
+	|
+	outputBus, network;
+	|
+	var in, amp, freq, hasFreq;
+    var midinum;
+	in = Mix.new(SoundIn.ar([0,1]));
     amp = Amplitude.kr(in, 0.05, 1);
     # freq, hasFreq = Pitch.kr(in);
     midinum = freq.cpsmidi.round(1);
     freq = Lag.kr(midinum.midicps, 0.05);
 
 	//sends the played note to the UI
-	n.send('/playedNote', midinum);
+	network.send('/playedNote', midinum);
+	
+	Out.ar(outputBus, in);
+});
+
+// the synth which computes the harmonizations:
+
+SynthDef.new(\harmonizer,{
+	|
+	inputBus;
+	fundamental, harmonic1, harmonic2, harmonic3,
+	voiceOutBus, harmonicOutBus, gain = 0;
+	|
+
+    var in = In.ar(inputBus, 0);
+    var partials;
+    
 
 	// the shift quantities used to compute the new pitch shifted harmonies
-	shift1 = (midinum - harmonic).midiratio.reciprocal;
-	shift2 = (midinum - harmonic2).midiratio.reciprocal;
-	shift3 = (midinum - harmonic3).midiratio.reciprocal;
+	shift1 = (fundamental - harmonic1).midiratio.reciprocal;
+	shift2 = (fundamental - harmonic2).midiratio.reciprocal;
+	shift3 = (fundamental - harmonic3).midiratio.reciprocal;
 
     partials = [
            0.5*shift,
@@ -43,8 +57,8 @@ SynthDef.new("harmonizer",{
 
 	harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
 
-	Out.ar(voiceBus, voice);
-	Out.ar(harmonicsBus, harmonics);
+	Out.ar(voiceOutBus, voice);
+	Out.ar(harmonicsOutBus, harmonics);
 
 }).send(s);
 
@@ -168,35 +182,55 @@ SynthDef(\delayEffect, {
 }).send(s);
 
 
+SynthDef(\saturationEffect, {
+	|
+	inputBus, outputBus, wetS = 0;
+	|
+	
+	var source = In.ar(inputBus,0);
+	
+	source = source.softclip * 0.2;
 
-// VOCODER&DISTORSORE = ;
+	mixSaturated = source*wetS + source*(1-wetS);
+	Out.ar(outputBus, mixSaturated);
+});
+	
 )
 
 
 /////////////////////////////////////// INIT /////////////////////////////////////////////////
 (
 
-// global variable containing the harmonizer
-~sound;
+// first element of the chain 
+~root;
 
-n = NetAddr("127.0.0.1", 47120);
+~n = NetAddr("127.0.0.1", 47120);
 
-//declare the busses and initialize the synths
-hBus = Bus.audio(s, 1);
+
+// create the busses 
+trackerOut = Bus.audio(s,1);
+harmonizerOut = Bus.audio(s, 6);
 finalBus = Bus.audio(s,1);
-eBus = Bus.audio(s,1);
 
+flIn = Bus.audio(s,1);
+phIn = Bus.audio(s,1);
+chIn = Bus.audio(s,1);
+revIn = Bus.audio(s,1);
+dlIn = Bus.audio(s,1);
+satIn = Bus.audio(s,1);
 
+// instances of the various model Synth
+~harmonizer = Synth.new(\harmonizer, [\inputBus, trackerOut, \voiceOutBus, finalBus, \harmonicsOutBus, harmonizerOut]);
+~panning = Synth.new(\panning, [\inputBus harmonizerOut, \outputBus, chIn] );
+finalSum = Synth.new(\finalSum, [\inputBus, finalBus]);
 
-
-x = Synth.new(\finalSum, [\outputBus, finalBus]);
-y = Synth.new(\panning, [\outputBus, );
-
-fl = Synth.new(\flangerEffect);
-ph = Synth.new(\phaserEffect);
-ch = Synth.new(\chorusEffect);
-rev = Synth.new(\reverbEffect);
-dl = Synth.new(\delayEffect);
+// instances of the various effects
+~ch = Synth.new(\chorusEffect, [\inputBus, chIn, \outputBus, flIn]);
+~fl = Synth.new(\flangerEffect, [\inputBus, flIn,  \outputBus, phIn]);
+~ph = Synth.new(\phaserEffect, [\inputBus, phIn, \outputBus, satIn]);
+~sat = Synth.new(\saturationEffect, [\inputBus, satIn, \outputBus, revIn]);
+~rev = Synth.new(\reverbEffect, [\inputBus, revIn, \outputBus, dlIn]);
+~dl = Synth.new(\delayEffect, [\inputBus, dlIn, \outputBus, finalBus]);
 
 
 )
@@ -210,39 +244,38 @@ var harmonizerOnOff = {
 	|msg|
 	if (msg[1] == 1,
 		{
-			~sound = Synth.new(\harmonizer, [\voiceBus, finalBus, \harmonicsBus, hBus]);
+			~root = Synth.new(\voiceTracker, [\outputBus, trackerOut, \network, ~n]);
 		},
 		{
-		~sound.free;
+		~root.free;
 		}
 	);
 };
 
 var setHarmonics = {
 	|msg|
-	~sound.set(\harmonic, msg[1], \harmonic2, msg[2], \harmonic3, msg[3]);
+	~harmonizer.set(\harmonic1, msg[1], \harmonic2, msg[2], \harmonic3, msg[3]);
 };
 
 var setEffectsParameters = {
 	|msg|
-	fl.set(\wetF, msg[1]);
-	ph.set(\wetP, msg[2]);
-	ch.set(\wetC, msg[3]);
-	dl.set(\wetD, msg[4]);
-	rev.set(\wetR, msg[5]);
-	//vocoderEffect.set(\wetV, msg[6]);
-	// DISTORSIONE
+	~ch.set(\wetC, msg[1]);
+	~fl.set(\wetF, msg[2]);
+	~ph.set(\wetP, msg[3]);
+	~sat.set(\wetS, msg[4]);
+	~rev.set(\wetR, msg[5]);
+	~dl.set(\wetD, msg[6]);
 
 };
 
 var setGain = {
 	|msg|
-	~sound.set(\gain, msg[1]);
+	~harmonizer.set(\gain, msg[1]);
 
 };
 var setWidth = {
 	|msg|
-	y.set(\pan, msg[1]);
+	~panning.set(\pan, msg[1]);
 };
 
 OSCdef('onOSCreceiver', harmonizerOnOff, "/onOff");
