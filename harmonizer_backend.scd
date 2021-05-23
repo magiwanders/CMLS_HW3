@@ -9,7 +9,7 @@ s.boot;
 
 SynthDef.new(\voiceTracker, {
 	|
-	outputBus, network;
+	outputBus, network
 	|
 	var in, amp, freq, hasFreq;
     var midinum;
@@ -21,7 +21,7 @@ SynthDef.new(\voiceTracker, {
 
 	//sends the played note to the UI
 	network.send('/playedNote', midinum);
-	
+
 	Out.ar(outputBus, in);
 });
 
@@ -29,14 +29,14 @@ SynthDef.new(\voiceTracker, {
 
 SynthDef.new(\harmonizer,{
 	|
-	inputBus;
+	inputBus,
 	fundamental, harmonic1, harmonic2, harmonic3,
-	voiceOutBus, harmonicOutBus, gain = 0;
+	voiceOutBus, harmonicOutBus, gain = 0
 	|
 
     var in = In.ar(inputBus, 0);
     var partials;
-    
+
 
 	// the shift quantities used to compute the new pitch shifted harmonies
 	shift1 = (fundamental - harmonic1).midiratio.reciprocal;
@@ -66,7 +66,7 @@ SynthDef.new(\harmonizer,{
 // this synth applies the given panning to the harmonics
 SynthDef.new(\panning, {
 	|
-	pan, inputBus, outputBus;
+	pan, inputBus, outputBus
 	|
 	var input = In.ar(inputBus, 6);
 
@@ -88,7 +88,7 @@ SynthDef.new(\panning, {
 //final summing synth
 SynthDef.new(\finalSum, {
 	|
-	inputBus, numVoices = 8;
+	inputBus, numVoices = 8
 	|
 
 	var input = In.ar(finalBus, 1);
@@ -108,8 +108,8 @@ SynthDef.new(\finalSum, {
 (
 SynthDef(\flangerEffect, {
 	|
-	rate = 1, maxDelay = 0.01, minDelay = 0.001, decayTime = 1, amp = 1, wetF = 0;
-	inputBus, outputBus;
+	rate = 1, maxDelay = 0.01, minDelay = 0.001, decayTime = 1, amp = 1, wetF = 0,
+	inputBus, outputBus
 	|
 
 	var source = In.ar(inputBus,0);
@@ -123,7 +123,7 @@ SynthDef(\flangerEffect, {
 
 SynthDef(\chorusEffect, {
 	|
-	rate = 1, maxDelay = 0.05, minDelay = 0.01, wetC = 0;
+	rate = 1, maxDelay = 0.05, minDelay = 0.01, wetC = 0,
 	inputBus, outputBus
 	|
 
@@ -142,7 +142,7 @@ SynthDef(\chorusEffect, {
 
 SynthDef(\phasingEffect, {
 	|
-	inputBus, outputBus, wetP = 0, freq=0.2;
+	inputBus, outputBus, wetP = 0, freq=0.2
 	|
 
 	var source = In.ar(inputBus,0); //get two channels of input starting (and ending) on bus 0
@@ -157,7 +157,7 @@ SynthDef(\phasingEffect, {
 
 SynthDef(\reverbEffect, {
 	|
-	inputBus, outputBus, wetR = 0;
+	inputBus, outputBus, wetR = 0
 	|
 
     // play with the room size
@@ -171,7 +171,7 @@ SynthDef(\reverbEffect, {
 
 SynthDef(\delayEffect, {
 	|
-	inputBus, outputBus, wetD = 0;
+	inputBus, outputBus, wetD = 0
 	|
 
 	var source = In.ar(inputBus,0);
@@ -184,30 +184,30 @@ SynthDef(\delayEffect, {
 
 SynthDef(\saturationEffect, {
 	|
-	inputBus, outputBus, wetS = 0;
+	inputBus, outputBus, wetS = 0
 	|
-	
+
 	var source = In.ar(inputBus,0);
-	
+
 	source = source.softclip * 0.2;
 
 	mixSaturated = source*wetS + source*(1-wetS);
 	Out.ar(outputBus, mixSaturated);
 });
-	
+
 )
 
 
 /////////////////////////////////////// INIT /////////////////////////////////////////////////
 (
 
-// first element of the chain 
+// first element of the chain
 ~root;
 
 ~n = NetAddr("127.0.0.1", 47120);
 
 
-// create the busses 
+// create the busses
 trackerOut = Bus.audio(s,1);
 harmonizerOut = Bus.audio(s, 6);
 finalBus = Bus.audio(s,1);
@@ -255,6 +255,7 @@ var harmonizerOnOff = {
 var setHarmonics = {
 	|msg|
 	~harmonizer.set(\harmonic1, msg[1], \harmonic2, msg[2], \harmonic3, msg[3]);
+	msg.postln;
 };
 
 var setEffectsParameters = {
