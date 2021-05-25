@@ -39,13 +39,18 @@ public class DropdownNote{
           ddl.addItem(musicalNotes[id], musicalNotes[id]);
           id++;
         }
-      ddl.getItem(0);
       //ddl.scroll(0);
       ddl.setColorBackground(color(60));
       ddl.setColorActive(color(255, 128));
     }
     
+public String getItem(int n){
+  return dropdownNote.getItem(n).toString();
+}
 
+public String getName(){
+  return dropdownNote.getCaptionLabel().getText();
+}
     
     
      /*public void active(){
@@ -54,7 +59,6 @@ public class DropdownNote{
         println(name + " è " + isActive);
       }
     }
-
     public void init(){
       toggleHarmonic = cp5Harmonic.addToggle(name)
         .setLabel(note)
@@ -64,9 +68,5 @@ public class DropdownNote{
         
       toggleHarmonic.isMousePressed();
     }*/
-    
-   
-   
-    
    
 }
