@@ -1,5 +1,9 @@
 s.reboot;
 
+n = NetAddr("127.0.0.1", 57120);
+b = NetAddr("127.0.0.1", 57121);
+
+
 
 //////////////////////////////////// MODEL ///////////////////////////////////////////////////
 
@@ -8,7 +12,7 @@ s.reboot;
 // This synth tracks the note sung by the user and sends it to the GUI
 SynthDef.new(\voiceTracker, {
     |
-    outputBus, network
+    outputBus
     |
     var in, amp, freq, hasFreq;
     var midinum;
@@ -18,7 +22,7 @@ SynthDef.new(\voiceTracker, {
     midinum = freq.cpsmidi.round(1);
     freq = Lag.kr(midinum.midicps, 0.05);
     //sends the played note to the UI
-    network.sendMsg('/playedNote', midinum);
+	n.sendMsg("/playedNote", midinum);
     Out.ar(outputBus, in);
 }).send(s);
 
@@ -29,7 +33,7 @@ SynthDef.new(\harmonizer,{
     fundamental, harmonic1, harmonic2, harmonic3,
     voiceOutBus, harmonicsOutBus, gain = 0
     |
-    var in = In.ar(inputBus, 0);
+    var in = In.ar(inputBus, 1);
     var partials, voice, harmonics;
     var shift1, shift2, shift3;
      // the shift quantities used to compute the new pitch shifted harmonies
@@ -60,13 +64,9 @@ SynthDef.new(\panning, {
     var input = In.ar(inputBus, 6);
     var mix, out;
     // pan each different track
-    input[1] = Pan2.ar(input[1], pan*1);
-    input[2] = Pan2.ar(input[2], pan*0.6);
-    input[3] = Pan2.ar(input[3], pan*0.2);
-    input[4] = Pan2.ar(input[4], pan*(-1));
-    input[5] = Pan2.ar(input[5], pan*(-0.6));
-    input[6] = Pan2.ar(input[6], pan*(-0.2));
-     mix = Mix.new(input);
+
+	mix = Mix.new(Pan2.ar(input, pos: [0.6*pan, 0.2*pan, -1*pan, -0.6*pan, -0.2*pan]));
+
     out = Out.ar(outputBus, mix);
 }).send(s);
 
@@ -171,9 +171,6 @@ SynthDef.new(\saturationEffect, {
 // first element of the chain
 ~root;
 
-NetAddr("127.0.0.1", 47120);
-
-
 // create the busses
 ~trackerOut = Bus.audio(s,1);
 ~harmonizerOut = Bus.audio(s, 6);
@@ -209,12 +206,14 @@ NetAddr("127.0.0.1", 47120);
 //the functions called after a message is received
 var harmonizerOnOff = {
 	|msg|
-	if (msg[1] == 1,
+	if (msg[1] == 1.0,
 		{
-			~root = Synth.new(\voiceTracker, [\outputBus, ~trackerOut, \network, ~n]);
+			"ciao".postln;
+			~root = Synth.new(\voiceTracker, [\outputBus, ~trackerOut]);
+			b.sendMsg("/playedNote", 81);
 		},
 		{
-		~root.free;
+		~root = nil;
 		}
 	);
 	msg[1].postln;
@@ -246,6 +245,7 @@ var setWidth = {
 	|msg|
 	~panning.set(\pan, msg[1]);
 };
+
 
 OSCdef('onOSCreceiver', harmonizerOnOff, "/onOff");
 OSCdef('harmonicsOSCreceiver', setHarmonics, "/harmonics");

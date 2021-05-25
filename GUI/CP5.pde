@@ -114,6 +114,8 @@ void cp5Init() {
 
 public void OnOff() {
   isOn = !isOn;
+  int msg = isOn ? 1 : 0;
+  sendMsgOSC("/onOff", (float)msg);
   println("IsOn è: " + isOn);
 }
 

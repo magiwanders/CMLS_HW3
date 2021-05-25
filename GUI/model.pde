@@ -18,8 +18,8 @@ void controllerInit() {
   setHarmonics();
   MidiBus.list(); 
   myBus = new MidiBus(this, midiDevice, 1); 
-  oscP5 = new OscP5(this,47120);
-  netAddress = new NetAddress("127.0.0.1", 47120);
+  oscP5 = new OscP5(this,57120);
+  netAddress = new NetAddress("127.0.0.1", 57120);
 }
 
 void setHarmonics() {
