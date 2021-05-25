@@ -20,10 +20,10 @@ SynthDef.new(\voiceTracker, {
     freq = Lag.kr(midinum.midicps, 0.05);
 
 	//sends the played note to the UI
-	network.send('/playedNote', midinum);
+	network.sendMsg('/playedNote', midinum);
 
 	Out.ar(outputBus, in);
-});
+}).send(s);
 
 // the synth which computes the harmonizations:
 
@@ -31,11 +31,12 @@ SynthDef.new(\harmonizer,{
 	|
 	inputBus,
 	fundamental, harmonic1, harmonic2, harmonic3,
-	voiceOutBus, harmonicOutBus, gain = 0
+	voiceOutBus, harmonicsOutBus, gain = 0
 	|
 
     var in = In.ar(inputBus, 0);
-    var partials;
+    var partials, voice, harmonics;
+	var shift1, shift2, shift3;
 
 
 	// the shift quantities used to compute the new pitch shifted harmonies
@@ -44,8 +45,8 @@ SynthDef.new(\harmonizer,{
 	shift3 = (fundamental - harmonic3).midiratio.reciprocal;
 
     partials = [
-           0.5*shift,
-           1*shift,
+           0.5*shift1,
+           1*shift1,
          0.5*shift2,
            1*shift2,
 		 0.5*shift3,
@@ -69,14 +70,15 @@ SynthDef.new(\panning, {
 	pan, inputBus, outputBus
 	|
 	var input = In.ar(inputBus, 6);
+	var mix, out;
 
 	// pan each different track
 	input[1] = Pan2.ar(input[1], pan*1);
 	input[2] = Pan2.ar(input[2], pan*0.6);
 	input[3] = Pan2.ar(input[3], pan*0.2);
-	input[4] = Pan2.ar(input[4], -pan*1);
-	input[5] = Pan2.ar(input[5], -pan*0.6);
-	input[6] = Pan2.ar(input[6], -pan*0.2);
+	input[4] = Pan2.ar(input[4], pan*(-1));
+	input[5] = Pan2.ar(input[5], pan*(-0.6));
+	input[6] = Pan2.ar(input[6], pan*(-0.2));
 
 
 	mix = Mix.new(input);
@@ -91,7 +93,7 @@ SynthDef.new(\finalSum, {
 	inputBus, numVoices = 8
 	|
 
-	var input = In.ar(finalBus, 1);
+	var input = In.ar(inputBus, 1);
 	var out;
 
     7.do({
