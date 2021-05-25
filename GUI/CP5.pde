@@ -75,9 +75,9 @@ void cp5Init() {
        .setPosition(60+(i*80),175)
        .setSize(40,40);
     
-    firstDropdownNote[i] = new DropdownNote (i, "first"+i, cp5, 50+(i*80),225);
-    secondDropdownNote[i] = new DropdownNote (i, "second"+i, cp5, 50+(i*80),300);
-    thirdDropdownNote[i] = new DropdownNote (i, "third"+i, cp5, 50+(i*80),375);
+    firstDropdownNote[i] = new DropdownNote (first, "first"+i, cp5, 50+(i*80),225);
+    secondDropdownNote[i] = new DropdownNote (second, "second"+i, cp5, 50+(i*80),300);
+    thirdDropdownNote[i] = new DropdownNote (third, "third"+i, cp5, 50+(i*80),375);
     
     firstDropdownNote[i].init();
     secondDropdownNote[i].init();
@@ -132,9 +132,22 @@ public void controlEvent(ControlEvent theEvent) {
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
     println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
+    println("event from controller : "+theEvent.getGroup().getCaptionLabel().getText()+" from "+theEvent.getController());
   } 
   else if (theEvent.isController()) {
-    println("event from controller : "+theEvent.getController().getValue()+" from "+theEvent.getController());
+    float n = theEvent.getController().getValue();
+    String name = theEvent.getController().getCaptionLabel().getText();
+    for (int i = 0; i < musicalDropdownNotes.length; i++){
+      if(firstDropdownNote[i].getName().equals(name)){
+        println(firstDropdownNote[i].getItem((int) n));
+      }
+      if(secondDropdownNote[i].getName().equals(name)){
+        println(secondDropdownNote[i].getItem((int) n));
+      }
+      if(thirdDropdownNote[i].getName().equals(name)){
+        println(thirdDropdownNote[i].getItem((int) n));
+      }
+    }
   }
 }
 
