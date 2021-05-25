@@ -10,13 +10,13 @@ void settings() {
 
 void setup(){
   cp5Init();
-  
+  controllerInit();
   customFont = createFont("Consolas", 20);
   textFont(customFont);
   textSize(25);
   text("LOADING . . .", width/2.3, height/2);
 }
-
+  
 
 void draw(){
   background(color(20,20,20));

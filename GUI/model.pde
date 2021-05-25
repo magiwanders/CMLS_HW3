@@ -14,21 +14,18 @@ int fundamental = 60;
 int numHarmonics = 3;
 int[] harmonics = new int[numHarmonics];
 
-void setup() {
+void controllerInit() {
   setHarmonics();
   MidiBus.list(); 
   myBus = new MidiBus(this, midiDevice, 1); 
   oscP5 = new OscP5(this,47120);
+  netAddress = new NetAddress("127.0.0.1", 47120);
 }
 
 void setHarmonics() {
   for ( int i = 0; i < numHarmonics; i++ ){
     harmonics[i] = 0;
   }
-}
-
-void draw() {
-  background(currentColor);
 }
 
 void oscEvent(OscMessage theOscMessage) {
