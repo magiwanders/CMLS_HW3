@@ -171,7 +171,7 @@ SynthDef.new(\saturationEffect, {
 // first element of the chain
 ~root;
 
-~n = NetAddr("127.0.0.1", 47120);
+NetAddr("127.0.0.1", 47120);
 
 
 // create the busses
@@ -217,6 +217,7 @@ var harmonizerOnOff = {
 		~root.free;
 		}
 	);
+	msg[1].postln;
 };
 
 var setHarmonics = {
