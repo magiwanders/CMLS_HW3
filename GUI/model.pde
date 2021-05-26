@@ -34,6 +34,9 @@ void oscEvent(OscMessage msg) {
       println(" values: " + fundamental);
       return;
     }
+    else if ( msg.checkAddrPattern("/superOn") == true){
+      isOn = false;
+    }
 }
 
 void midiMessage(MidiMessage message, long timestamp, String bus_name) { 

@@ -142,6 +142,9 @@ public void controlEvent(ControlEvent theEvent) {
     for (int i = 0; i < musicalDropdownNotes.length; i++){
       if(firstDropdownNote[i].getName().equals(name)){
         println(firstDropdownNote[i].getItem((int) n));
+       sendArrayOSC("/noteModify", new int(){1, i, );
+       println(name);
+
       }
       if(secondDropdownNote[i].getName().equals(name)){
         println(secondDropdownNote[i].getItem((int) n));
