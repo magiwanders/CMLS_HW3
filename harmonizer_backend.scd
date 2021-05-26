@@ -3,6 +3,7 @@ s.reboot;
 n = NetAddr("127.0.0.1", 57120);
 b = NetAddr("127.0.0.1", 12000);
 
+~root;
 
 //////////////////////////////////// MODEL ///////////////////////////////////////////////////
 
@@ -19,17 +20,17 @@ SynthDef.new(\voiceTracker, {
 	midinum = 60;
 	midinum.postln;
 
-    in = Mix.new(SoundIn.ar([0,1]));
-    amp = Amplitude.kr(in, 0.05, 1);
+   // in = Mix.new(SoundIn.ar([0,1]));
+    /*amp = Amplitude.kr(in, 0.05, 1);
     # freq, hasFreq = Pitch.kr(in);
     midinum = freq.cpsmidi.round(1);
     freq = Lag.kr(midinum.midicps, 0.05);
 	"The note traced".postln;
-
+*/
     //sends the played note to the UI
 	b.sendMsg("/playedNote", midinum.asFloat);
-    Out.ar(outputBus, in);
-}).add;
+   // Out.ar(outputBus, in);
+}).send(s);
 
 // the synth which computes the harmonizations:
 SynthDef.new(\harmonizer,{
@@ -59,7 +60,7 @@ SynthDef.new(\harmonizer,{
     harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
     Out.ar(voiceOutBus, voice);
     Out.ar(harmonicsOutBus, harmonics);
-}).add;
+}).send(s);
 
  // this synth applies the given panning to the harmonics
 SynthDef.new(\panning, {
@@ -86,7 +87,7 @@ SynthDef.new(\finalSum, {
         out = AllpassN.ar(input, 0.040, [0.040.rand,0.040.rand], 2)
     });
     Out.ar(0,out/numVoices)
-}).add;
+}).send(s);
 
 )
 
@@ -173,6 +174,7 @@ SynthDef.new(\saturationEffect, {
 /////////////////////////////////////// INIT /////////////////////////////////////////////////
 (
 
+
 // create the busses
 ~trackerOut = Bus.audio(s,1);
 ~harmonizerOut = Bus.audio(s, 6);
@@ -210,11 +212,13 @@ var harmonizerOnOff = {
 	|msg|
 	if (msg[1] == 1.0,
 		{
-			r = Synth(\voiceTracker, [\outputBus, ~trackerOut]);
+			~root = Synth(\voiceTracker, [\outputBus, ~trackerOut]);
+			~root.postln;
 			//b.sendMsg("/playedNote", 81.asFloat);
 		},
 		{
-		r = nil;
+		~root.free;
+		~root.postln;
 		}
 	);
 	msg[1].postln;
