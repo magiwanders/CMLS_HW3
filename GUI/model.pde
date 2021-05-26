@@ -18,7 +18,7 @@ void controllerInit() {
   setHarmonics();
   MidiBus.list(); 
   myBus = new MidiBus(this, midiDevice, 1); 
-  oscP5 = new OscP5(this,57120);
+  oscP5 = new OscP5(this,12000);
   netAddress = new NetAddress("127.0.0.1", 57120);
 }
 
@@ -28,9 +28,9 @@ void setHarmonics() {
   }
 }
 
-void oscEvent(OscMessage theOscMessage) {
-  if(theOscMessage.checkAddrPattern("/playedNote") == true) {
-      fundamental = (int)theOscMessage.get(0).floatValue();
+void oscEvent(OscMessage msg) {
+  if(msg.checkAddrPattern("/playedNote") == true && msg.get(0) != null ) {
+      fundamental = (int)msg.get(0).floatValue();
       println(" values: " + fundamental);
       return;
     }

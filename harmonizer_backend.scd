@@ -1,8 +1,7 @@
 s.reboot;
 
 n = NetAddr("127.0.0.1", 57120);
-b = NetAddr("127.0.0.1", 57121);
-
+b = NetAddr("127.0.0.1", 12000);
 
 
 //////////////////////////////////// MODEL ///////////////////////////////////////////////////
@@ -16,15 +15,21 @@ SynthDef.new(\voiceTracker, {
     |
     var in, amp, freq, hasFreq;
     var midinum;
+
+	midinum = 60;
+	midinum.postln;
+
     in = Mix.new(SoundIn.ar([0,1]));
     amp = Amplitude.kr(in, 0.05, 1);
     # freq, hasFreq = Pitch.kr(in);
     midinum = freq.cpsmidi.round(1);
     freq = Lag.kr(midinum.midicps, 0.05);
+	"The note traced".postln;
+
     //sends the played note to the UI
-	n.sendMsg("/playedNote", midinum);
+	b.sendMsg("/playedNote", midinum.asFloat);
     Out.ar(outputBus, in);
-}).send(s);
+}).add;
 
 // the synth which computes the harmonizations:
 SynthDef.new(\harmonizer,{
@@ -54,7 +59,7 @@ SynthDef.new(\harmonizer,{
     harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
     Out.ar(voiceOutBus, voice);
     Out.ar(harmonicsOutBus, harmonics);
-}).send(s);
+}).add;
 
  // this synth applies the given panning to the harmonics
 SynthDef.new(\panning, {
@@ -81,7 +86,7 @@ SynthDef.new(\finalSum, {
         out = AllpassN.ar(input, 0.040, [0.040.rand,0.040.rand], 2)
     });
     Out.ar(0,out/numVoices)
-}).send(s);
+}).add;
 
 )
 
@@ -168,9 +173,6 @@ SynthDef.new(\saturationEffect, {
 /////////////////////////////////////// INIT /////////////////////////////////////////////////
 (
 
-// first element of the chain
-~root;
-
 // create the busses
 ~trackerOut = Bus.audio(s,1);
 ~harmonizerOut = Bus.audio(s, 6);
@@ -208,12 +210,11 @@ var harmonizerOnOff = {
 	|msg|
 	if (msg[1] == 1.0,
 		{
-			"ciao".postln;
-			~root = Synth.new(\voiceTracker, [\outputBus, ~trackerOut]);
-			b.sendMsg("/playedNote", 81);
+			r = Synth(\voiceTracker, [\outputBus, ~trackerOut]);
+			//b.sendMsg("/playedNote", 81.asFloat);
 		},
 		{
-		~root = nil;
+		r = nil;
 		}
 	);
 	msg[1].postln;
@@ -254,3 +255,4 @@ OSCdef('widthOSCreceiver', setWidth, "/width");
 OSCdef('effectsParamOSCreceiver', setEffectsParameters, "/effects");
 
 )
+
