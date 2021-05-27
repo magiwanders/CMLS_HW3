@@ -49,7 +49,7 @@ SynthDef.new(\voiceTracker, {
 SynthDef.new(\harmonizer,{
     |
     inputBus,
-	harmonic1, harmonic2, harmonic3,
+	harmonic1=64, harmonic2=67, harmonic3=71,
     voiceOutBus, harmonicsOutBus, gain = 0
     |
 
@@ -80,9 +80,9 @@ SynthDef.new(\harmonizer,{
     ];
     //split two cases: main voice (uneffected and harmonies)
 	voice = Mix.new(PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004));
-    harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
-    Out.ar(0, voice);
-    Out.ar(harmonicsOutBus, harmonics);
+    harmonics = PitchShift.ar(in, 0.2, partials, 0, 0.004);
+	// Out.ar([0,1], voice);
+	Out.ar(harmonicsOutBus, harmonics);
 }).send(s);
 
  // this synth applies the given panning to the harmonics
@@ -96,7 +96,7 @@ SynthDef.new(\panning, {
 
 	mix = Mix.new(Pan2.ar(input, pos: [0.6*pan, 0.2*pan, -1*pan, -0.6*pan, -0.2*pan]));
 
-    out = Out.ar(outputBus, mix);
+	out = Out.ar(0, mix);
 }).send(s);
 
  //final summing synth
@@ -275,24 +275,24 @@ var setWidth = {
 
 var setNote = {
 	|msg|
-	if ( msg[1] == 1, {
-		~mapped[msg[2]] = msg[3];
-		~harmonizer.set(\harmonic1, ~mapped[msg[2]]);
+	if ( msg[1].asInteger == 1, {
+		~mapped[msg[2].asInteger] = msg[3].asInteger;
+		~harmonizer.set(\harmonic1, ~mapped[msg[2].asInteger]);
 		// ~difference[msg[2]] = (~table[msg[2]] - ~mapped[msg[2]]).midiratio.reciprocal;
 		// ~diffbuf.setn(0, ~difference);
 
 	},
 	{
-		if( msg[1] == 2, {
-			~mapped2[msg[2]] = msg[3];
-			~harmonizer.set(\harmonic2, ~mapped2[msg[2]]);
+		if( msg[1].asInteger == 2, {
+			~mapped2[msg[2].asInteger] = msg[3].asInteger;
+			~harmonizer.set(\harmonic2, ~mapped2[msg[2].asInteger]);
 			// ~difference2[msg[2]] = (~table[msg[2]] - ~mapped2[msg[2]]).midiratio.reciprocal;
 			// ~diffbuf2.setn(0, ~difference2);
 		}
 		,
 		{
-			~mapped3[msg[2]] = msg[3];
-			~harmonizer.set(\harmonic3, ~mapped2[msg[2]]);
+			~mapped3[msg[2].asInteger] = msg[3].asInteger;
+			~harmonizer.set(\harmonic3, ~mapped2[msg[2].asInteger]);
 
 			//~difference3[msg[2]] = (~table[msg[2]] - ~mapped3[msg[2]]).midiratio.reciprocal;
 			// ~diffbuf3.setn(0, ~difference3);
