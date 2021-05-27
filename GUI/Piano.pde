@@ -14,7 +14,6 @@ public class PianoKeyboard{
 }
   
   public void draw(){
-  int keyWidth= 0;
   int whiteWidth= w/8;
   float blackHeight= h*3/5;
   float blackWidth= whiteWidth/2;
