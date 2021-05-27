@@ -3,7 +3,7 @@ import controlP5.*;
 ControlP5 cp5;
 
 String[] musicalDropdownNotes = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-String[] effectsList = {"phaser", "flanger", "chorus", "delay", "reverb", "satur"};
+String[] effectsList = { "chorus", "flanger", "phaser", "satur", "reverb", "delay"};
 
 /* Toggle button for Harmonics */
 DropdownNote[] firstDropdownNote = new DropdownNote[musicalDropdownNotes.length];
@@ -95,7 +95,6 @@ void cp5Init() {
      .setValue(50)
      .setFont(createFont("Consolas",15));
      
-
   }
   
   /* GAIN SLIDER*/
@@ -121,6 +120,8 @@ public void OnOff() {
 
 public void Midi(){
   isMidi = !isMidi;
+  int msg = isMidi ? 1 : 0;
+  sendMsgOSC("/MIDIonOff", (float)msg);
   println("Midi è: " + isMidi);
 }
 
@@ -140,31 +141,41 @@ public void controlEvent(ControlEvent theEvent) {
     float n = theEvent.getController().getValue();
     String name = theEvent.getController().getCaptionLabel().getText();
     for (int i = 0; i < musicalDropdownNotes.length; i++){
+      int row = 0;
+      String note = "c";
       if(firstDropdownNote[i].getName().equals(name)){
-       String note = firstDropdownNote[i].getItem((int) n);
-       println(note);
-       int noteMIDI = convertToMIDI(note);
-       println(noteMIDI);
-       sendArrayOSC("/noteModify", new int[]{1, i, noteMIDI});
-       println("This is row: " + name);
-
+       row = 1;
+       note = firstDropdownNote[i].getItem((int) n);
       }
       if(secondDropdownNote[i].getName().equals(name)){
-       String note = secondDropdownNote[i].getItem((int) n);
-       println(note);
-       int noteMIDI = convertToMIDI(note);
-       println(noteMIDI);
-       sendArrayOSC("/noteModify", new int[]{2, i, noteMIDI});
-       println("This is row: " + name);
+       row = 2;
+       note = secondDropdownNote[i].getItem((int) n);
       }
       if(thirdDropdownNote[i].getName().equals(name)){
-       String note = thirdDropdownNote[i].getItem((int) n);
-       println(note);
-       int noteMIDI = convertToMIDI(note);
-       println(noteMIDI);
-       sendArrayOSC("/noteModify", new int[]{3, i, noteMIDI});
-       println("This is row: " + name);
+       row = 3;
+       note = thirdDropdownNote[i].getItem((int) n);
       }
+      if (row != 0 ) {
+        println(note);
+        int noteMIDI = convertToMIDI(note);
+        println(noteMIDI);
+        sendArrayOSC("/noteModify", new float[]{row, i, noteMIDI});
+        println("This is row: " + name);
+      }
+      else{
+          println(name);
+          if ( Arrays.asList(effectsList).contains(name) ) {
+            int pos = Arrays.asList(effectsList).indexOf(name);
+            float value = effect[pos].getValue();
+            println(value);
+            setEffect(value, pos);
+          }
+          else {    //gain
+            sendMsgOSC("/gain", gain.getValue()/100);
+          }
+ 
+      }
+      
     }
   }
 }

@@ -5,6 +5,7 @@ import themidibus.*; //Import the library
 import javax.sound.midi.MidiMessage; 
 import oscP5.*;
 import netP5.*;
+import java.util.Arrays;
 
 MidiBus myBus; 
 
@@ -12,20 +13,36 @@ int currentColor = 0;
 int midiDevice  = 0;
 int fundamental = 60;
 int numHarmonics = 3;
+int numEffects = 6;
 int[] harmonics = new int[numHarmonics];
+float[] effectsValues = new float[numEffects];
 
 void controllerInit() {
-  setHarmonics();
+  resetHarmonics();
+  resetEffects();
   MidiBus.list(); 
+  
   myBus = new MidiBus(this, midiDevice, 1); 
   oscP5 = new OscP5(this,12000);
   netAddress = new NetAddress("127.0.0.1", 57120);
+  sendMsgOSC("/MIDIonOff", 0);
 }
 
-void setHarmonics() {
+void resetHarmonics() {
   for ( int i = 0; i < numHarmonics; i++ ){
     harmonics[i] = 0;
   }
+}
+
+void resetEffects(){
+  for ( int i = 0; i < numEffects; i++ ){
+    effectsValues[i] = 0.5;
+  }
+}
+
+void setEffect(float value, int pos){
+  effectsValues[pos] = value / 100;
+  sendArrayOSC("/effects", effectsValues);
 }
 
 void oscEvent(OscMessage msg) {
@@ -36,6 +53,7 @@ void oscEvent(OscMessage msg) {
     }
     else if ( msg.checkAddrPattern("/superOn") == true){
       isOn = false;
+      isMidi = false;
     }
 }
 
@@ -46,7 +64,7 @@ void midiMessage(MidiMessage message, long timestamp, String bus_name) {
   println("Bus " + bus_name + ": Note "+ note + ", vel " + vel);
   if (vel > 0 ) {
    if ( harmonics[numHarmonics-1] != 0 ) {
-      setHarmonics();
+      resetHarmonics();
    }
    
    boolean breakCycle = false;
@@ -59,15 +77,21 @@ void midiMessage(MidiMessage message, long timestamp, String bus_name) {
     }
    
    if ( harmonics[numHarmonics-1] != 0 ) {
+     Arrays.sort(harmonics);
      println(harmonics);
-     sendArrayOSC("/harmonics", harmonics);
+     float[] harmonicsFloat = new float[harmonics.length];
+     
+     for ( int i = 0; i < numHarmonics; i++ ) {  
+       harmonicsFloat[i] = (float) harmonics[i];       
+     }
+     sendArrayOSC("/MIDInotes", harmonicsFloat);
    }
   }
 }
 
 
 int convertToMIDI(String note) {
-  note = note.toUpperCase() + "3";
+  note = note.toUpperCase() + "4";
   String sym = "";
   int oct = 0;
   String[][] notes = { {"C"}, {"Db", "C#"}, {"D"}, {"Eb", "D#"}, {"E"},

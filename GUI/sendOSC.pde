@@ -6,7 +6,7 @@ OscP5 oscP5;
 NetAddress netAddress;
 
 
-void sendArrayOSC(String path, int[] a) {
+void sendArrayOSC(String path, float[] a) {
   OscMessage msg = new OscMessage(path);
   
   for (int i = 0; i < a.length; ++i) {

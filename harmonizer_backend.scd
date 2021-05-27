@@ -13,7 +13,9 @@ b = NetAddr("127.0.0.1", 12000);
 ~mapped2 = Array.fill(12, {arg i; i + 55});
 ~mapped3 = Array.fill(12, {arg i; i + 59});
 
+~midiON = 0;
 
+/*
 // define a table to store the difference between reference and mapped note
 ~difference = Array.fill(~table.size, {0});
 // define a buffer on the server for consultation from the SynthDef
@@ -22,6 +24,8 @@ b = NetAddr("127.0.0.1", 12000);
 ~diffbuf2=Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
 ~difference3= Array.fill(~table.size, {0});
 ~diffbuf3=Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
+
+*/
 )
 
 //////////////////////////////////// SYNTHS ///////////////////////////////////////////////////
@@ -34,28 +38,33 @@ SynthDef.new(\voiceTracker, {
     outputBus
     |
 
-    var in, amp, freq, hasFreq;
-    var midinum;
+    var in;
 
     in = Mix.new(SoundIn.ar([0,1]));
-    amp = Amplitude.kr(in, 0.05, 1);
-    # freq, hasFreq = Pitch.kr(in);
-    midinum = freq.cpsmidi.round(1);
-    freq = Lag.kr(midinum.midicps, 0.05);
 
-    Out.ar(0, in);
+    Out.ar(outputBus, in);
 }).send(s);
 
 // the synth which computes the harmonizations:
 SynthDef.new(\harmonizer,{
     |
     inputBus,
-    fundamental, harmonic1, harmonic2, harmonic3,
+	harmonic1, harmonic2, harmonic3,
     voiceOutBus, harmonicsOutBus, gain = 0
     |
-    var in = In.ar(inputBus, 1);
-    var partials, voice, harmonics;
+
+	var in = In.ar(inputBus, 1);
+	var amp, freq, hasFreq;
+    var fundamental;
+	var partials, voice, harmonics;
     var shift1, shift2, shift3;
+
+	amp = Amplitude.kr(in, 0.05, 1);
+    # freq, hasFreq = Pitch.kr(in);
+    fundamental = freq.cpsmidi.round(1);
+    freq = Lag.kr(fundamental.midicps, 0.05);
+
+
      // the shift quantities used to compute the new pitch shifted harmonies
     shift1 = (fundamental - harmonic1).midiratio.reciprocal;
     shift2 = (fundamental - harmonic2).midiratio.reciprocal;
@@ -70,16 +79,16 @@ SynthDef.new(\harmonizer,{
            1*shift3,
     ];
     //split two cases: main voice (uneffected and harmonies)
-    voice = PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004);
+	voice = Mix.new(PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004));
     harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
-    Out.ar(voiceOutBus, voice);
+    Out.ar(0, voice);
     Out.ar(harmonicsOutBus, harmonics);
 }).send(s);
 
  // this synth applies the given panning to the harmonics
 SynthDef.new(\panning, {
     |
-    pan, inputBus, outputBus
+    pan=0.5, inputBus, outputBus
     |
     var input = In.ar(inputBus, 6);
     var mix, out;
@@ -242,12 +251,6 @@ var harmonizerOnOff = {
 	msg[1].postln;
 };
 
-var setHarmonics = {
-	|msg|
-	~harmonizer.set(\harmonic1, msg[1], \harmonic2, msg[2], \harmonic3, msg[3]);
-	msg.postln;
-};
-
 var setEffectsParameters = {
 	|msg|
 	~ch.set(\wetC, msg[1]);
@@ -256,12 +259,13 @@ var setEffectsParameters = {
 	~sat.set(\wetS, msg[4]);
 	~rev.set(\wetR, msg[5]);
 	~dl.set(\wetD, msg[6]);
-
+	msg.postln;
 };
 
 var setGain = {
 	|msg|
 	~harmonizer.set(\gain, msg[1]);
+	msg.postln;
 
 };
 var setWidth = {
@@ -273,34 +277,64 @@ var setNote = {
 	|msg|
 	if ( msg[1] == 1, {
 		~mapped[msg[2]] = msg[3];
-		~difference[msg[2]] = (~table[msg[2]] - ~mapped[msg[2]]).midiratio.reciprocal;
-		~diffbuf.setn(0, ~difference);
+		~harmonizer.set(\harmonic1, ~mapped[msg[2]]);
+		// ~difference[msg[2]] = (~table[msg[2]] - ~mapped[msg[2]]).midiratio.reciprocal;
+		// ~diffbuf.setn(0, ~difference);
 
 	},
 	{
 		if( msg[1] == 2, {
 			~mapped2[msg[2]] = msg[3];
-			~difference2[msg[2]] = (~table[msg[2]] - ~mapped2[msg[2]]).midiratio.reciprocal;
-			~diffbuf2.setn(0, ~difference2);
+			~harmonizer.set(\harmonic2, ~mapped2[msg[2]]);
+			// ~difference2[msg[2]] = (~table[msg[2]] - ~mapped2[msg[2]]).midiratio.reciprocal;
+			// ~diffbuf2.setn(0, ~difference2);
 		}
 		,
 		{
 			~mapped3[msg[2]] = msg[3];
-			~difference3[msg[2]] = (~table[msg[2]] - ~mapped3[msg[2]]).midiratio.reciprocal;
-			~diffbuf3.setn(0, ~difference3);
+			~harmonizer.set(\harmonic3, ~mapped2[msg[2]]);
+
+			//~difference3[msg[2]] = (~table[msg[2]] - ~mapped3[msg[2]]).midiratio.reciprocal;
+			// ~diffbuf3.setn(0, ~difference3);
 		});
 	});
+
 	//~mapped.do({arg item; item.postln});
 	msg.postln;
 };
 
+var midiOnOff = {
+	|msg|
+	if (msg[1] == 1.0,
+		{
+			~midiOn = 1;
+		},
+		{
+			~midiOn = 0;
+		}
+	);
+	msg.postln;
+};
+
+
+var setMidiNotes = {
+	|msg|
+	msg.postln;
+	if (~midiOn == 1.0,
+		{
+		   ~harmonizer.set(\harmonic1, msg[1].asInteger, \harmonic2, ~msg[2].asInteger,\harmonic3, msg[3].asInteger);
+		}
+
+	);
+};
 
 OSCdef('onOSCreceiver', harmonizerOnOff, "/onOff");
-OSCdef('harmonicsOSCreceiver', setHarmonics, "/harmonics");
 OSCdef('gainOSCreceiver', setGain, "/gain");
 OSCdef('widthOSCreceiver', setWidth, "/width");
 OSCdef('effectsParamOSCreceiver', setEffectsParameters, "/effects");
 OSCdef('newNoteOSCreceiver', setNote, "/noteModify");
+OSCdef('midiONOSCreceiver', midiOnOff, "/MIDIonOff");
+OSCdef('midiNotesOSCreceiver', setMidiNotes, "/MIDInotes");
 
 )
 
