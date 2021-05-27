@@ -1,5 +1,5 @@
 PFont customFont;
-PianoKeyboard pianoKeyboard = new PianoKeyboard(100, 700);
+PianoKeyboard pianoKeyboard = new PianoKeyboard(100, 700, 300, 150);
 Polygon hexagon = new Polygon(1200, 720, 70, 6);
 
 void settings() {
@@ -25,7 +25,7 @@ void draw(){
   cp5.draw();
   
   /* PianoKeyboard*/
-  pianoKeyboard.draw();
+  //pianoKeyboard.draw();
   
   /* Pentagon */
   hexagon.draw();
