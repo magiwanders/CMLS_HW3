@@ -36,13 +36,13 @@ void cp5Init() {
   .setWidth(w)
   .setHeight(h)
   .setLabel("On/Off")
-  .setPosition(width * 0.2, height * 0.03)
+  .setPosition(width * 0.3, height * 0.03)
   .setFont(createFont("Consolas",12));
   
   midiButton = cp5.addButton("Midi")
     .setWidth(w)
     .setHeight(h)
-    .setPosition(width * 0.4, height * 0.03)
+    .setPosition(width * 0.6, height * 0.03)
     .setColorBackground(color(100, 100, 100))
     .setColorActive(color(50, 150, 150))
     .setLabel("MIDI")
@@ -71,12 +71,12 @@ void cp5Init() {
        .setText(musicalDropdownNotes[i])
        .setFont(createFont("Georgia",20))
        .setColorValue(255)
-       .setPosition(60+(i*80),175)
+       .setPosition(width*0.1+(i*width*0.05),175)
        .setSize(40,40);
     
-    firstDropdownNote[i] = new DropdownNote (first, "first"+i, cp5, 50+(i*80),225);
-    secondDropdownNote[i] = new DropdownNote (second, "second"+i, cp5, 50+(i*80),300);
-    thirdDropdownNote[i] = new DropdownNote (third, "third"+i, cp5, 50+(i*80),375);
+    firstDropdownNote[i] = new DropdownNote (first, "first"+i, cp5, width*0.1+(i*width*0.05),225);
+    secondDropdownNote[i] = new DropdownNote (second, "second"+i, cp5, width*0.1+(i*width*0.05),300);
+    thirdDropdownNote[i] = new DropdownNote (third, "third"+i, cp5, width*0.1+(i*width*0.05),375);
     
     firstDropdownNote[i].init();
     secondDropdownNote[i].init();
@@ -124,6 +124,8 @@ public void Midi(){
   println("Midi è: " + isMidi);
 }
 
+/*Methods to hide elements*/
+
 public void textHide(){
   for (int i = 0; i < musicalDropdownNotes.length; i++){
     note[i].hide();
@@ -138,6 +140,14 @@ public void dropdownHide(){
     }
 }
 
+/* Methods to show elements*/
+
+public void textShow(){
+  for (int i = 0; i < musicalDropdownNotes.length; i++){
+    note[i].show();
+  }
+}
+
 public void dropdownShow(){
     for (int i = 0; i < musicalDropdownNotes.length; i++){
       firstDropdownNote[i].show();
@@ -145,6 +155,8 @@ public void dropdownShow(){
       thirdDropdownNote[i].show();
     }
 }
+
+
 
 public void controlEvent(ControlEvent theEvent) {
   // DropdownList is of type ControlGroup.
