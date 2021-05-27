@@ -1,7 +1,3 @@
-PFont customFont;
-PianoKeyboard pianoKeyboard = new PianoKeyboard(100, 200, 800, 280);
-BubbleNotes bubbleNotes = new BubbleNotes (0, 750, 1000, 250);
-
 void settings() {
   float screenWidth = displayWidth - (displayWidth*0.05);
   float screenHeight = displayHeight - (displayHeight*0.1);
@@ -9,6 +5,10 @@ void settings() {
   size((int)screenWidth, (int) screenHeight, P2D);
   smooth(24);
 }
+/* NOT DYNAMIC! */
+PFont customFont;
+PianoKeyboard pianoKeyboard = new PianoKeyboard(width*3, height*2, width*11, height*3);
+BubbleNotes bubbleNotes = new BubbleNotes();
 
 void setup(){
   frame.setResizable(true);

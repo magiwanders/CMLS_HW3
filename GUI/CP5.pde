@@ -74,9 +74,9 @@ void cp5Init() {
        .setPosition(width*0.108+(i*width*0.05),height * 0.2)
        .setSize(40,40);
     
-    firstDropdownNote[i] = new DropdownNote (first, "first"+i, cp5, width*0.1+(i*width*0.05), height * 0.3 );
-    secondDropdownNote[i] = new DropdownNote (second, "second"+i, cp5, width*0.1+(i*width*0.05), height * 0.45);
-    thirdDropdownNote[i] = new DropdownNote (third, "third"+i, cp5, width*0.1+(i*width*0.05), height * 0.6);
+    firstDropdownNote[i] = new DropdownNote (first, "1° -  " + musicalDropdownNotes[i] , cp5, width*0.1+(i*width*0.05), height * 0.3 );
+    secondDropdownNote[i] = new DropdownNote (second, "2° -  " + musicalDropdownNotes[i] , cp5, width*0.1+(i*width*0.05), height * 0.45);
+    thirdDropdownNote[i] = new DropdownNote (third, "3° -  " + musicalDropdownNotes[i] , cp5, width*0.1+(i*width*0.05), height * 0.6);
     
     firstDropdownNote[i].init();
     secondDropdownNote[i].init();
@@ -104,13 +104,25 @@ void cp5Init() {
   float wGain = width * 0.4;
   float hGain = height * 0.03;
   /* GAIN SLIDER*/
-  gain = cp5.addSlider("gain")
+  if (isMidi == true){              //NON FUNZIONA QUESTO CONTROLLO
+    gain = cp5.addSlider("gain")
      .setLabel("Gain")
      .setPosition(width * 0.2,height * 0.8)
      .setSize((int) wGain, (int) hGain)  
      .setRange(0,100)
      .setValue(50  )
      .setFont(createFont("Consolas",12));
+  } else {
+    gain = cp5.addSlider("gain")
+     .setLabel("Gain")
+     .setPosition(width * 0.75, height * 0.2 + (effectsList.length * height * 0.1))
+     .setSize((int)wEffect,(int)hEffect)  
+     .setRange(0,100)
+     .setValue(50)
+     .setFont(createFont("Consolas",15));
+  
+  }
+
      
   for (int i = 0; i < effectsList.length; i++){
     println(cp5.getController("effect" + i).getValueLabel() + " è " + effect[i].getValue());
@@ -171,7 +183,9 @@ public void controlEvent(ControlEvent theEvent) {
   // therefore you need to check the originator of the Event with
   // if (theEvent.isGroup())
   // to avoid an error message thrown by controlP5.
-
+  int row = 0;
+  int index = 0;
+  String note = "c";
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
     println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
@@ -181,42 +195,46 @@ public void controlEvent(ControlEvent theEvent) {
     float n = theEvent.getController().getValue();
     String name = theEvent.getController().getCaptionLabel().getText();
     for (int i = 0; i < musicalDropdownNotes.length; i++){
-      int row = 0;
-      String note = "c";
+
       if(firstDropdownNote[i].getName().equals(name)){
        row = 1;
        note = firstDropdownNote[i].getItem((int) n);
+       index = i;
       }
       if(secondDropdownNote[i].getName().equals(name)){
        row = 2;
        note = secondDropdownNote[i].getItem((int) n);
+       index = i;
       }
       if(thirdDropdownNote[i].getName().equals(name)){
        row = 3;
        note = thirdDropdownNote[i].getItem((int) n);
-      }
-      if (row != 0 ) {
-        println(note);
-        int noteMIDI = convertToMIDI(note);
-        println(noteMIDI);
-        sendArrayOSC("/noteModify", new float[]{row, i, noteMIDI});
-        println("This is row: " + name);
-      }
-      else{
-          println(name);
-          if ( Arrays.asList(effectsList).contains(name) ) {
-            int pos = Arrays.asList(effectsList).indexOf(name);
-            float value = effect[pos].getValue();
-            println(value);
-            setEffect(value, pos);
-          }
-          else {    //gain
-            sendMsgOSC("/gain", gain.getValue()/100);
-          }
- 
+       index = i;
       }
       
+      /* IF ALL'INTERNO DEL FOR, MANDA 12 VOLTE LO STESSO MESSAGGIO - SICURI SIA GIUSTO? */
     }
+    
+    if (row != 0 ) {
+      println(note);
+      int noteMIDI = convertToMIDI(note);
+      println(noteMIDI);
+      sendArrayOSC("/noteModify", new float[]{row, index, noteMIDI});
+      println("This is row: " + name);
+    }
+    else{
+        println(name);
+        if ( Arrays.asList(effectsList).contains(name) ) {
+          int pos = Arrays.asList(effectsList).indexOf(name);
+          float value = effect[pos].getValue();
+          println(value);
+          setEffect(value, pos);
+        }
+        else {    //gain
+          sendMsgOSC("/gain", gain.getValue()/100);
+        }
+ 
+    }  
     println("event from controller : "+theEvent.getController().getValue()+" from "+theEvent.getController());
   }
 }

@@ -20,7 +20,7 @@ public class DropdownNote{
     }
     
     /* Size of Dropdown because setSize wants int*/
-    float wDropdown = width*0.04;
+    float wDropdown = width*0.035;
     float hDropdown = height*0.08;
     
     public void init(){
@@ -69,22 +69,5 @@ public String getItem(int n){
 public String getName(){
   return dropdownNote.getCaptionLabel().getText();
 }
-    
-    
-     /*public void active(){
-      if(mousePressed){
-        isActive = !isActive;
-        println(name + " è " + isActive);
-      }
-    }
-    public void init(){
-      toggleHarmonic = cp5Harmonic.addToggle(name)
-        .setLabel(note)
-        .setPosition(x,y)
-        .setSize(40,40)
-        .setFont(createFont("Consolas",12));
-        
-      toggleHarmonic.isMousePressed();
-    }*/
    
 }
