@@ -5,22 +5,21 @@ ControlP5 cp5;
 String[] musicalDropdownNotes = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 String[] effectsList = { "chorus", "flanger","phaser","satur",  "reverb", "delay"};
 
-/* Toggle button for Harmonics */
+/* Toggle button for Intervals */
 DropdownNote[] firstDropdownNote = new DropdownNote[musicalDropdownNotes.length];
 DropdownNote[] secondDropdownNote = new DropdownNote[musicalDropdownNotes.length];
 DropdownNote[] thirdDropdownNote = new DropdownNote[musicalDropdownNotes.length];
 
-Textlabel note;
+Textlabel[] note = new Textlabel[musicalDropdownNotes.length];
 
 Button midiButton;
 Button onOffButton;
-RadioButton harmonicRadioButton;
 
 Slider[] effect = new Slider[effectsList.length];
 Slider gain;
 
 boolean isOn = false;
-boolean isMidi = false;
+public boolean isMidi = false;
 boolean isFirstHarmonic = false;
 boolean isSecondHarmonic = false;
 boolean isThirdHarmonic = false;
@@ -49,7 +48,7 @@ void cp5Init() {
     .setLabel("MIDI")
     .setFont(createFont("Consolas",12));
    
-  /* MUSICAL NOTES WITH HARMONICS */
+  /* MUSICAL NOTES */
   for (int i = 0; i < musicalDropdownNotes.length; i++){
     
     int first = i + 4;
@@ -68,7 +67,7 @@ void cp5Init() {
       third = third - musicalDropdownNotes.length; 
     }
     
-    note = cp5.addTextlabel("MusicalDropdownNote" + i)
+    note[i] = cp5.addTextlabel("MusicalDropdownNote" + i)
        .setText(musicalDropdownNotes[i])
        .setFont(createFont("Georgia",20))
        .setColorValue(255)
@@ -123,6 +122,28 @@ public void Midi(){
   int msg = isMidi ? 1 : 0;
   sendMsgOSC("/MIDIonOff", (float)msg);
   println("Midi è: " + isMidi);
+}
+
+public void textHide(){
+  for (int i = 0; i < musicalDropdownNotes.length; i++){
+    note[i].hide();
+  }
+}
+
+public void dropdownHide(){
+    for (int i = 0; i < musicalDropdownNotes.length; i++){
+      firstDropdownNote[i].hide();
+      secondDropdownNote[i].hide();
+      thirdDropdownNote[i].hide();
+    }
+}
+
+public void dropdownShow(){
+    for (int i = 0; i < musicalDropdownNotes.length; i++){
+      firstDropdownNote[i].show();
+      secondDropdownNote[i].show();
+      thirdDropdownNote[i].show();
+    }
 }
 
 public void controlEvent(ControlEvent theEvent) {
@@ -180,17 +201,3 @@ public void controlEvent(ControlEvent theEvent) {
     println("event from controller : "+theEvent.getController().getValue()+" from "+theEvent.getController());
   }
 }
-
-/*public void mousePressed(){
-  for (int i = 0; i < musicalDropdownNotes.length; i++){
-      if(firstDropdownNote[i].toggleHarmonic.isMousePressed()){
-        firstDropdownNote[i].active();
-      }
-      if(secondDropdownNote[i].toggleHarmonic.isMousePressed()){
-        secondDropdownNote[i].active();
-      }
-      if(thirdDropdownNote[i].toggleHarmonic.isMousePressed()){
-        thirdDropdownNote[i].active();
-      }
-  }
-}*/

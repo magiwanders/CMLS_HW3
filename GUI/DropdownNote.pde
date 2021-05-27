@@ -44,6 +44,14 @@ public class DropdownNote{
       ddl.setColorActive(color(255, 128));
     }
     
+public void hide(){
+  dropdownNote.hide();
+}
+
+public void show(){
+  dropdownNote.show();
+}
+
 public String getItem(int n){
   return dropdownNote.getItem(n).get("name").toString();
 }
