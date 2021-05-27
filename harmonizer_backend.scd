@@ -1,7 +1,5 @@
 s.reboot;
 
-n = NetAddr("127.0.0.1", 57120);
-b = NetAddr("127.0.0.1", 12000);
 
 ///////////////////////////////////// MODEL ////////////////////////////////////////////////////
 (
@@ -80,8 +78,8 @@ SynthDef.new(\harmonizer,{
     ];
     //split two cases: main voice (uneffected and harmonies)
 	voice = Mix.new(PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004));
-    harmonics = PitchShift.ar(in, 0.2, partials, 0, 0.004);
-	// Out.ar([0,1], voice);
+    harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
+	Out.ar(voiceOutBus, voice);
 	Out.ar(harmonicsOutBus, harmonics);
 }).send(s);
 
@@ -91,12 +89,12 @@ SynthDef.new(\panning, {
     pan=0.5, inputBus, outputBus
     |
     var input = In.ar(inputBus, 6);
-    var mix, out;
+    var mix;
     // pan each different track
 
 	mix = Mix.new(Pan2.ar(input, pos: [0.6*pan, 0.2*pan, -1*pan, -0.6*pan, -0.2*pan]));
 
-	out = Out.ar(0, mix);
+	Out.ar(outputBus, mix);
 }).send(s);
 
  //final summing synth
@@ -109,7 +107,7 @@ SynthDef.new(\finalSum, {
     7.do({
         out = AllpassN.ar(input, 0.040, [0.040.rand,0.040.rand], 2)
     });
-    Out.ar(0,out/numVoices)
+    Out.ar(0,out)
 }).send(s);
 
 )
@@ -198,6 +196,8 @@ SynthDef.new(\saturationEffect, {
 (
 
 ~root;
+n = NetAddr("127.0.0.1", 57120);
+b = NetAddr("127.0.0.1", 12000);
 
 b.sendMsg("/superOn", 1);
 
@@ -206,6 +206,8 @@ b.sendMsg("/superOn", 1);
 ~harmonizerOut = Bus.audio(s, 6);
 ~finalBus = Bus.audio(s,1);
 
+~harmonizerOut.scope();
+
 ~flIn = Bus.audio(s,1);
 ~phIn = Bus.audio(s,1);
 ~chIn = Bus.audio(s,1);
@@ -213,19 +215,22 @@ b.sendMsg("/superOn", 1);
 ~dlIn = Bus.audio(s,1);
 ~satIn = Bus.audio(s,1);
 
+//~chIn.scope();
+
 // instances of the various model Synth
 ~harmonizer = Synth.new(\harmonizer, [\inputBus, ~trackerOut, \voiceOutBus, ~finalBus, \harmonicsOutBus, ~harmonizerOut]);
-~panning = Synth.new(\panning, [\inputBus, ~harmonizerOut, \outputBus, ~chIn] );
-~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus]);
+~panning = Synth.after(~harmonizer, \panning, [\inputBus, ~harmonizerOut, \outputBus, ~chIn] );
+
 
 // instances of the various effects
-~ch = Synth.new(\chorusEffect, [\inputBus, ~chIn, \outputBus, ~flIn]);
-~fl = Synth.new(\flangerEffect, [\inputBus, ~flIn,  \outputBus, ~phIn]);
-~ph = Synth.new(\phaserEffect, [\inputBus, ~phIn, \outputBus, ~satIn]);
-~sat = Synth.new(\saturationEffect, [\inputBus, ~satIn, \outputBus, ~revIn]);
-~rev = Synth.new(\reverbEffect, [\inputBus, ~revIn, \outputBus, ~dlIn]);
-~dl = Synth.new(\delayEffect, [\inputBus, ~dlIn, \outputBus, ~finalBus]);
+~ch = Synth.after(~panning, \chorusEffect, [\inputBus, ~chIn, \outputBus, ~flIn]);
+~fl = Synth.after(~ch,\flangerEffect, [\inputBus, ~flIn,  \outputBus, ~phIn]);
+~ph = Synth.after(~fl, \phaserEffect, [\inputBus, ~phIn, \outputBus, ~satIn]);
+~sat = Synth.after(~ph, \saturationEffect, [\inputBus, ~satIn, \outputBus, ~revIn]);
+~rev = Synth.after(~sat, \reverbEffect, [\inputBus, ~revIn, \outputBus, ~dlIn]);
+~dl = Synth.after(~rev, \delayEffect, [\inputBus, ~dlIn, \outputBus, ~finalBus]);
 
+~finalSum = Synth.after(~dl, \finalSum, [\inputBus, ~finalBus]);
 
 )
 
@@ -238,7 +243,7 @@ var harmonizerOnOff = {
 	|msg|
 	if (msg[1] == 1.0,
 		{
-			~root = Synth(\voiceTracker, [\outputBus, ~trackerOut]);
+			~root = Synth.before(~harmonizer, \voiceTracker, [\outputBus, ~trackerOut]);
 			~root.postln;
 
 			//b.sendMsg("/playedNote", 81.asFloat);
