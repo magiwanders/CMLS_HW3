@@ -45,7 +45,7 @@ public class DropdownNote{
     }
     
 public String getItem(int n){
-  return dropdownNote.getItem(n).toString();
+  return dropdownNote.getItem(n).get("name").toString();
 }
 
 public String getName(){

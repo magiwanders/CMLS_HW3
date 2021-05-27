@@ -141,16 +141,29 @@ public void controlEvent(ControlEvent theEvent) {
     String name = theEvent.getController().getCaptionLabel().getText();
     for (int i = 0; i < musicalDropdownNotes.length; i++){
       if(firstDropdownNote[i].getName().equals(name)){
-        println(firstDropdownNote[i].getItem((int) n));
-       sendArrayOSC("/noteModify", new int(){1, i, );
-       println(name);
+       String note = firstDropdownNote[i].getItem((int) n);
+       println(note);
+       int noteMIDI = convertToMIDI(note);
+       println(noteMIDI);
+       sendArrayOSC("/noteModify", new int[]{1, i, noteMIDI});
+       println("This is row: " + name);
 
       }
       if(secondDropdownNote[i].getName().equals(name)){
-        println(secondDropdownNote[i].getItem((int) n));
+       String note = secondDropdownNote[i].getItem((int) n);
+       println(note);
+       int noteMIDI = convertToMIDI(note);
+       println(noteMIDI);
+       sendArrayOSC("/noteModify", new int[]{2, i, noteMIDI});
+       println("This is row: " + name);
       }
       if(thirdDropdownNote[i].getName().equals(name)){
-        println(thirdDropdownNote[i].getItem((int) n));
+       String note = thirdDropdownNote[i].getItem((int) n);
+       println(note);
+       int noteMIDI = convertToMIDI(note);
+       println(noteMIDI);
+       sendArrayOSC("/noteModify", new int[]{3, i, noteMIDI});
+       println("This is row: " + name);
       }
     }
   }

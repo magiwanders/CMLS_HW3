@@ -3,10 +3,28 @@ s.reboot;
 n = NetAddr("127.0.0.1", 57120);
 b = NetAddr("127.0.0.1", 12000);
 
-~root;
-~root.free;
+///////////////////////////////////// MODEL ////////////////////////////////////////////////////
+(
 
-//////////////////////////////////// MODEL ///////////////////////////////////////////////////
+// define a table of reference notes [c c# d ... b]
+~table = Array.fill(12, {arg i; i + 60}); // [60,61,...,71]
+// define a table of mapped notes (Default values)
+~mapped = Array.fill(12, {arg i; i + 52}); // starts from e3
+~mapped2 = Array.fill(12, {arg i; i + 55});
+~mapped3 = Array.fill(12, {arg i; i + 59});
+
+
+// define a table to store the difference between reference and mapped note
+~difference = Array.fill(~table.size, {0});
+// define a buffer on the server for consultation from the SynthDef
+~diffbuf= Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
+~difference2= Array.fill(~table.size, {0});
+~diffbuf2=Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
+~difference3= Array.fill(~table.size, {0});
+~diffbuf3=Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
+)
+
+//////////////////////////////////// SYNTHS ///////////////////////////////////////////////////
 
 (
 
@@ -15,22 +33,17 @@ SynthDef.new(\voiceTracker, {
     |
     outputBus
     |
+
     var in, amp, freq, hasFreq;
     var midinum;
 
-	midinum = 60;
-	midinum.postln;
-
-   // in = Mix.new(SoundIn.ar([0,1]));
-    /*amp = Amplitude.kr(in, 0.05, 1);
+    in = Mix.new(SoundIn.ar([0,1]));
+    amp = Amplitude.kr(in, 0.05, 1);
     # freq, hasFreq = Pitch.kr(in);
     midinum = freq.cpsmidi.round(1);
     freq = Lag.kr(midinum.midicps, 0.05);
-	"The note traced".postln;
-*/
-    //sends the played note to the UI
-	b.sendMsg("/playedNote", midinum.asFloat);
-   // Out.ar(outputBus, in);
+
+    Out.ar(0, in);
 }).send(s);
 
 // the synth which computes the harmonizations:
@@ -175,6 +188,9 @@ SynthDef.new(\saturationEffect, {
 /////////////////////////////////////// INIT /////////////////////////////////////////////////
 (
 
+~root;
+
+b.sendMsg("/superOn", 1);
 
 // create the busses
 ~trackerOut = Bus.audio(s,1);
@@ -215,6 +231,7 @@ var harmonizerOnOff = {
 		{
 			~root = Synth(\voiceTracker, [\outputBus, ~trackerOut]);
 			~root.postln;
+
 			//b.sendMsg("/playedNote", 81.asFloat);
 		},
 		{
@@ -252,12 +269,38 @@ var setWidth = {
 	~panning.set(\pan, msg[1]);
 };
 
+var setNote = {
+	|msg|
+	if ( msg[1] == 1, {
+		~mapped[msg[2]] = msg[3];
+		~difference[msg[2]] = (~table[msg[2]] - ~mapped[msg[2]]).midiratio.reciprocal;
+		~diffbuf.setn(0, ~difference);
+
+	},
+	{
+		if( msg[1] == 2, {
+			~mapped2[msg[2]] = msg[3];
+			~difference2[msg[2]] = (~table[msg[2]] - ~mapped2[msg[2]]).midiratio.reciprocal;
+			~diffbuf2.setn(0, ~difference2);
+		}
+		,
+		{
+			~mapped3[msg[2]] = msg[3];
+			~difference3[msg[2]] = (~table[msg[2]] - ~mapped3[msg[2]]).midiratio.reciprocal;
+			~diffbuf3.setn(0, ~difference3);
+		});
+	});
+	//~mapped.do({arg item; item.postln});
+	msg.postln;
+};
+
 
 OSCdef('onOSCreceiver', harmonizerOnOff, "/onOff");
 OSCdef('harmonicsOSCreceiver', setHarmonics, "/harmonics");
 OSCdef('gainOSCreceiver', setGain, "/gain");
 OSCdef('widthOSCreceiver', setWidth, "/width");
 OSCdef('effectsParamOSCreceiver', setEffectsParameters, "/effects");
+OSCdef('newNoteOSCreceiver', setNote, "/noteModify");
 
 )
 
