@@ -3,7 +3,7 @@ import controlP5.*;
 ControlP5 cp5;
 
 String[] musicalDropdownNotes = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-String[] effectsList = { "chorus", "flanger", "phaser", "satur", "reverb", "delay"};
+String[] effectsList = { "chorus", "flanger","phaser","satur",  "reverb", "delay"};
 
 /* Toggle button for Harmonics */
 DropdownNote[] firstDropdownNote = new DropdownNote[musicalDropdownNotes.length];
@@ -177,6 +177,7 @@ public void controlEvent(ControlEvent theEvent) {
       }
       
     }
+    println("event from controller : "+theEvent.getController().getValue()+" from "+theEvent.getController());
   }
 }
 

@@ -162,6 +162,7 @@ SynthDef.new(\reverbEffect, {
     var source = In.ar(inputBus,1);
     var reverb = GVerb.ar(source, 105, 5, 0.7, 0.8, 60, 0.1, 0.5, 0.4);
     var mixReverbed;
+
     mixReverbed = reverb*wetR + source*(1-wetR);
     Out.ar(outputBus, mixReverbed);
 }).send(s);
@@ -206,7 +207,6 @@ b.sendMsg("/superOn", 1);
 ~harmonizerOut = Bus.audio(s, 6);
 ~finalBus = Bus.audio(s,1);
 
-~harmonizerOut.scope();
 
 ~flIn = Bus.audio(s,1);
 ~phIn = Bus.audio(s,1);
@@ -215,7 +215,6 @@ b.sendMsg("/superOn", 1);
 ~dlIn = Bus.audio(s,1);
 ~satIn = Bus.audio(s,1);
 
-//~chIn.scope();
 
 // instances of the various model Synth
 ~harmonizer = Synth.new(\harmonizer, [\inputBus, ~trackerOut, \voiceOutBus, ~finalBus, \harmonicsOutBus, ~harmonizerOut]);
@@ -310,7 +309,7 @@ var setNote = {
 
 var midiOnOff = {
 	|msg|
-	if (msg[1] == 1.0,
+	if (msg[2] == 1.0,
 		{
 			~midiOn = 1;
 		},
