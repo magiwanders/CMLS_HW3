@@ -71,36 +71,43 @@ void cp5Init() {
        .setText(musicalDropdownNotes[i])
        .setFont(createFont("Georgia",20))
        .setColorValue(255)
-       .setPosition(width*0.1+(i*width*0.05),175)
+       .setPosition(width*0.108+(i*width*0.05),height * 0.2)
        .setSize(40,40);
     
-    firstDropdownNote[i] = new DropdownNote (first, "first"+i, cp5, width*0.1+(i*width*0.05),225);
-    secondDropdownNote[i] = new DropdownNote (second, "second"+i, cp5, width*0.1+(i*width*0.05),300);
-    thirdDropdownNote[i] = new DropdownNote (third, "third"+i, cp5, width*0.1+(i*width*0.05),375);
+    firstDropdownNote[i] = new DropdownNote (first, "first"+i, cp5, width*0.1+(i*width*0.05), height * 0.3 );
+    secondDropdownNote[i] = new DropdownNote (second, "second"+i, cp5, width*0.1+(i*width*0.05), height * 0.45);
+    thirdDropdownNote[i] = new DropdownNote (third, "third"+i, cp5, width*0.1+(i*width*0.05), height * 0.6);
     
     firstDropdownNote[i].init();
     secondDropdownNote[i].init();
     thirdDropdownNote[i].init();
     
-  }  
+  } 
+  
+  /* Size of Gain Slider because setSize wants int*/
+  float wEffect = width * 0.12;
+  float hEffect = height * 0.03;
 
   /* EFFECTS SLIDERS */
   for (int i = 0; i < effectsList.length; i++){
     effect[i] = cp5.addSlider("effect" + i)
      .setLabel(effectsList[i])
-     .setPosition(width * 0.75, 175 + (i*73.5))
-     .setSize(200,30)  
+     .setPosition(width * 0.75, height * 0.2 + (i * height * 0.1))
+     .setSize((int)wEffect,(int)hEffect)  
      .setRange(0,100)
      .setValue(50)
      .setFont(createFont("Consolas",15));
      
   }
   
+  /* Size of Gain Slider because setSize wants int*/
+  float wGain = width * 0.4;
+  float hGain = height * 0.03;
   /* GAIN SLIDER*/
   gain = cp5.addSlider("gain")
      .setLabel("Gain")
-     .setPosition(width * 0.2,height * 0.6)
-     .setSize(450,30)  
+     .setPosition(width * 0.2,height * 0.8)
+     .setSize((int) wGain, (int) hGain)  
      .setRange(0,100)
      .setValue(50  )
      .setFont(createFont("Consolas",12));
@@ -156,7 +163,7 @@ public void dropdownShow(){
     }
 }
 
-
+/* Method to take sliders' and dropdowns' value */
 
 public void controlEvent(ControlEvent theEvent) {
   // DropdownList is of type ControlGroup.

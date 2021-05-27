@@ -19,19 +19,29 @@ public class DropdownNote{
       y = yPosition;   
     }
     
+    /* Size of Dropdown because setSize wants int*/
+    float wDropdown = width*0.04;
+    float hDropdown = height*0.08;
+    
     public void init(){
         dropdownNote = cp5.addDropdownList("dropdownNote"+name)
           .setPosition(x, y)
-          .setSize(50,50);
+          .setSize((int)wDropdown,(int)hDropdown);
           customize(dropdownNote); // customize the first list
     }
+    
+    /* Size of Dropdown because setSize wants int*/
+    float hItem = height * 0.03;
+    float hBar = height * 0.03;
     
     void customize(DropdownList ddl) {
       // a convenience function to customize a DropdownList
       ddl.setBackgroundColor(color(190));
-      ddl.setItemHeight(20);
-      ddl.setBarHeight(15);
+      ddl.setItemHeight((int)hItem);
+      ddl.setBarHeight((int)hBar);
       ddl.getCaptionLabel().set(name);
+      ddl.setFont(createFont("CopperplateGothic-Light",11));
+      
        for (int i=0; i<musicalNotes.length;i++) {
           if (id == 12){
             id = 0;
