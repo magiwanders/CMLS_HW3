@@ -1,6 +1,8 @@
 public class PianoKeyboard{
   
   public float x, y, w, h;
+  public String[] whiteKeys = {"C", "D", "E", "F", "G", "A", "B"};
+  public String[] blackKeys = {"C#", "D#", "F#", "G#", "A#"};
   
   public PianoKeyboard(){
 
@@ -34,6 +36,7 @@ public class PianoKeyboard{
     if(mouseX >= keyHeight && mouseX <= keyHeight+ whiteWidth && mouseY > y  && mouseY - y <= h &&
     mousePressed && blackHover == keyHeight){
       fill(255,0,0);
+      println("");
     } else if(mouseX > keyHeight && mouseX <= keyHeight+ whiteWidth && blackHover == -1  && mouseY > y  && mouseY - y <= h){
       fill(255,250,200);
     }else{

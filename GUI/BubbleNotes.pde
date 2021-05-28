@@ -1,16 +1,12 @@
-import processing.core.PGraphics;
+
 public class BubbleNotes{
-  /*public BubbleNotes(float xPosition, float yPosition, float wSize, float hSize){
-    x = xPosition;
-    y = yPosition;
-    w = wSize;
-    h = hSize;
     
+  public float x;        //position on x
+  public float y;        //position on y
+  public float w;        //width
+  public float h;        //heigth
 
-  }*/
-  /* Sizes */
-
-      // Five moving bodies
+  // Five moving bodies
   Mover[] movers = new Mover[4];
   
   // Liquid
@@ -20,12 +16,13 @@ public class BubbleNotes{
     
   public void setup() {
     reset();
-    float x = 0;                 //position on x
-    float y = height*0.7;        //position on y
-    float w = width*0.72;         //width
-    float h = height*0.3;        //heigth
+    x = 0;                 
+    y = height*0.7;        
+    w = width*0.72;        
+    h = height*0.3;        
+    
     liquid = new Liquid(x, y, w, h, 0.1);
-    // Create liquid object
+    
   }
   
   public void draw() {
@@ -65,7 +62,7 @@ public class BubbleNotes{
   }
   public void reset() {
     for (int i = 0; i < movers.length; i++) {
-      movers[i] = new Mover(random(2, 5), 380+i*70, 600);
+      movers[i] = new Mover(random(2, 5), width*0.25+i*width*0.08, 600);
     }
   }
 
@@ -191,7 +188,7 @@ class Liquid {
 
   void display() {
     noStroke();
-    fill(127);
+    fill(color(20,20,20));
     rect(x, y, w, h);
   }
 }

@@ -12,14 +12,14 @@ DropdownNote[] thirdDropdownNote = new DropdownNote[musicalDropdownNotes.length]
 
 Textlabel[] note = new Textlabel[musicalDropdownNotes.length];
 
-Button midiButton;
-Button onOffButton;
+Button midiButton, onOffButton, A;
 
 Slider[] effect = new Slider[effectsList.length];
 Slider gain;
 
 boolean isOn = false;
 public boolean isMidi = false;
+boolean aIsActive = false;
 boolean isFirstHarmonic = false;
 boolean isSecondHarmonic = false;
 boolean isThirdHarmonic = false;
@@ -36,16 +36,23 @@ void cp5Init() {
   .setWidth(w)
   .setHeight(h)
   .setLabel("On/Off")
-  .setPosition(width * 0.3, height * 0.03)
+  .setPosition(width * 0.25, height * 0.03)
   .setFont(createFont("Consolas",12));
   
   midiButton = cp5.addButton("Midi")
     .setWidth(w)
     .setHeight(h)
-    .setPosition(width * 0.6, height * 0.03)
+    .setPosition(width * 0.55, height * 0.03)
     .setColorBackground(color(100, 100, 100))
     .setColorActive(color(50, 150, 150))
     .setLabel("MIDI")
+    .setFont(createFont("Consolas",12));
+  
+  A = cp5.addButton("A")
+    .setWidth(h)
+    .setHeight(h)
+    .setLabel("Play A")
+    .setPosition(width * 0.85, height * 0.03)
     .setFont(createFont("Consolas",12));
    
   /* MUSICAL NOTES */
@@ -127,6 +134,13 @@ void cp5Init() {
   for (int i = 0; i < effectsList.length; i++){
     println(cp5.getController("effect" + i).getValueLabel() + " è " + effect[i].getValue());
   }
+}
+
+public void A() {
+  aIsActive = !aIsActive;
+  //int msg = aIsActive ? 1 : 0;
+  //sendMsgOSC("/onOff", (float)msg);
+  println("aIsActive è: " + aIsActive);
 }
 
 public void OnOff() {
