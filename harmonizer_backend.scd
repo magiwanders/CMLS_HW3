@@ -13,6 +13,7 @@ s.reboot;
 
 ~midiON = 0;
 
+
 /*
 // define a table to store the difference between reference and mapped note
 ~difference = Array.fill(~table.size, {0});
@@ -22,8 +23,8 @@ s.reboot;
 ~diffbuf2=Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
 ~difference3= Array.fill(~table.size, {0});
 ~diffbuf3=Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
-
 */
+
 )
 
 //////////////////////////////////// SYNTHS ///////////////////////////////////////////////////
@@ -60,6 +61,7 @@ SynthDef.new(\harmonizer,{
 	amp = Amplitude.kr(in, 0.05, 1);
     # freq, hasFreq = Pitch.kr(in);
     fundamental = freq.cpsmidi.round(1);
+
     freq = Lag.kr(fundamental.midicps, 0.05);
 
 
@@ -83,6 +85,47 @@ SynthDef.new(\harmonizer,{
 	Out.ar(harmonicsOutBus, harmonics);
 }).send(s);
 
+/*
+SynthDef.new(\harmonizer,{
+    |
+    inputBus,
+	harmonic1=64, harmonic2=67, harmonic3=71,
+    voiceOutBus, harmonicsOutBus, gain = 0
+    |
+
+	var in = In.ar(inputBus, 1);
+	var amp, freq, hasFreq;
+    var fundamental;
+	var partials, voice, harmonics;
+    var shift1, shift2, shift3;
+
+	amp = Amplitude.kr(in, 0.05, 1);
+    # freq, hasFreq = Pitch.kr(in);
+    fundamental = freq.cpsmidi.round(1);
+
+    freq = Lag.kr(fundamental.midicps, 0.05);
+
+
+     // the shift quantities used to compute the new pitch shifted harmonies
+    shift1 = (fundamental - harmonic1).midiratio.reciprocal;
+    shift2 = (fundamental - harmonic2).midiratio.reciprocal;
+    shift3 = (fundamental - harmonic3).midiratio.reciprocal;
+
+    partials = [
+           0.5*shift1,
+           1*shift1,
+         0.5*shift2,
+           1*shift2,
+         0.5*shift3,
+           1*shift3,
+    ];
+    //split two cases: main voice (uneffected and harmonies)
+	voice = Mix.new(PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004));
+    harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
+	Out.ar(voiceOutBus, voice);
+	Out.ar(harmonicsOutBus, harmonics);
+}).send(s);
+*/
  // this synth applies the given panning to the harmonics
 SynthDef.new(\panning, {
     |
@@ -290,16 +333,16 @@ var setNote = {
 		if( msg[1].asInteger == 2, {
 			~mapped2[msg[2].asInteger] = msg[3].asInteger;
 			~harmonizer.set(\harmonic2, ~mapped2[msg[2].asInteger]);
-			// ~difference2[msg[2]] = (~table[msg[2]] - ~mapped2[msg[2]]).midiratio.reciprocal;
-			// ~diffbuf2.setn(0, ~difference2);
+		  //  ~difference2[msg[2]] = (~table[msg[2]] - ~mapped2[msg[2]]).midiratio.reciprocal;
+			//~diffbuf2.setn(0, ~difference2);
 		}
 		,
 		{
 			~mapped3[msg[2].asInteger] = msg[3].asInteger;
 			~harmonizer.set(\harmonic3, ~mapped2[msg[2].asInteger]);
 
-			//~difference3[msg[2]] = (~table[msg[2]] - ~mapped3[msg[2]]).midiratio.reciprocal;
-			// ~diffbuf3.setn(0, ~difference3);
+		//	~difference3[msg[2]] = (~table[msg[2]] - ~mapped3[msg[2]]).midiratio.reciprocal;
+			//~diffbuf3.setn(0, ~difference3);
 		});
 	});
 
@@ -324,9 +367,11 @@ var midiOnOff = {
 var setMidiNotes = {
 	|msg|
 	msg.postln;
-	if (~midiOn == 1.0,
+	if (~midiOn == 1,
 		{
-		   ~harmonizer.set(\harmonic1, msg[1].asInteger, \harmonic2, ~msg[2].asInteger,\harmonic3, msg[3].asInteger);
+			~harmonizer.set(\harmonic1, msg[1].asInteger);
+			~harmonizer.set( \harmonic2, msg[2].asInteger);
+			~harmonizer.set(\harmonic3, msg[3].asInteger);
 		}
 
 	);

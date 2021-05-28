@@ -1,3 +1,6 @@
+import netP5.*;
+import oscP5.*;
+
 PFont customFont;
 PianoKeyboard pianoKeyboard = new PianoKeyboard(100, 700);
 Polygon hexagon = new Polygon(1200, 720, 70, 6);
