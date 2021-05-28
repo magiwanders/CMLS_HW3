@@ -28,6 +28,7 @@ s.reboot;
 
 //////////////////////////////////// SYNTHS ///////////////////////////////////////////////////
 
+
 (
 
 
@@ -256,7 +257,6 @@ SynthDef.new(\saturationEffect, {
     Out.ar(outputBus, mixSaturated);
 }).send(s);
 
-
 SynthDef.new(\reverbEffect, {
     |
     inputBus, outputBus, wetR = 0
@@ -266,13 +266,16 @@ SynthDef.new(\reverbEffect, {
     var source;
     var reverb;
     var mixReverbed;
+	var dry;
 
+	dry = 1 - wetR;
 	source = In.ar(inputBus, 1);
-	reverb = GVerb.ar(source, 105, 5, 0.7, 0.8, 60, 0.1, 0.5, 0.4);
+	reverb = GVerb.ar(source, 20, 6, 0.5, 1, 100, dry, 0.5, 0.4);
 
 	mixReverbed = (reverb * wetR) + source * (1 - wetR);
     Out.ar(outputBus, mixReverbed);
 }).send(s);
+
 
 SynthDef.new(\delayEffect, {
     |
@@ -285,7 +288,7 @@ SynthDef.new(\delayEffect, {
     var mixDelayed;
 
 	source = In.ar(inputBus, 1);
-	delay = DelayL.ar(source, 0.3, MouseX.kr(0,0.3), 1, add = 0.0);
+	delay = DelayL.ar(source, 0.3, 3, 1, add = 0.0);
 
 	mixDelayed = (delay * wetD) + source * (1 - wetD);
     Out.ar(outputBus, mixDelayed);
@@ -334,7 +337,7 @@ b.sendMsg("/superOn", 1);
 // instances of the various effects
 ~ch = Synth.after(~panning, \chorusEffect, [\inputBus, ~chIn, \outputBus, ~flIn], ~effectsGroup);
 ~fl = Synth.after(~ch,\flangerEffect, [\inputBus, ~flIn,  \outputBus, ~phIn], ~effectsGroup);
-~ph = Synth.after(~fl, \phaserEffect, [\inputBus, ~phIn, \outputBus, ~satIn], ~effectsGroup);
+~ph = Synth.after(~fl, \phaserEffect, [\inputBus, ~phIn, \outputBus, ~revIn], ~effectsGroup);
 ~sat = Synth.after(~ph, \saturationEffect, [\inputBus, ~satIn, \outputBus, ~revIn], ~effectsGroup);
 ~rev = Synth.after(~sat, \reverbEffect, [\inputBus, ~revIn, \outputBus, ~dlIn], ~effectsGroup);
 ~dl = Synth.after(~rev, \delayEffect, [\inputBus, ~dlIn, \outputBus, ~finalBus], ~effectsGroup);
@@ -342,6 +345,9 @@ b.sendMsg("/superOn", 1);
 ~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
 
 ~x;
+
+~revIn.scope;
+
 )
 
 
@@ -454,7 +460,7 @@ var playA = {
 		~x.free;
 	}
 	);
-
+	msg.postln;
 };
 
 OSCdef('onOSCreceiver', harmonizerOnOff, "/onOff");

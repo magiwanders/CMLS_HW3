@@ -1,3 +1,5 @@
+import java.text.DecimalFormat;
+
 public class StereoWidth{
     
   float xPad, yPad, dPad, rounded;
@@ -39,6 +41,11 @@ public class StereoWidth{
   println(dPad);
   
   float msg = (dPad - width*0.03) / (width * 0.1 - width * 0.03);
+  
+  int msg1 = (int)(msg * 10);
+  println(msg1);
+  
+  msg = (float) msg1 / 10;
   
   println("To supercollider: " + msg);
   sendMsgOSC("/pan", msg);
