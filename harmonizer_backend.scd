@@ -30,6 +30,18 @@ s.reboot;
 
 (
 
+
+SynthDef(\sampleNote, {
+	|
+	outputBus
+	|
+	var out, freq = 440;
+	out = SinOsc.ar(freq, 1);
+	Out.ar(outputBus, out)
+}).send(s);
+
+
+
 // This synth tracks the note sung by the user and sends it to the GUI
 SynthDef.new(\voiceTracker, {
     |
@@ -83,7 +95,7 @@ SynthDef.new(\harmonizerGUI,{
 
     // split two cases: main voice (uneffected and harmonies)
 	voice = Mix.new(PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004));
-    harmonics = gain * PitchShift.ar(in, 0.2, partials, 0, 0.004);
+    harmonics = 2*gain * PitchShift.ar(in, 0.2, partials, 0, 0.004);
 
 	Out.ar(voiceOutBus, voice);
 	Out.ar(harmonicsOutBus, harmonics);
@@ -124,7 +136,7 @@ SynthDef.new(\harmonizerMIDI,{
 
     // split two cases: main voice (uneffected and harmonies)
 	voice = Mix.new(PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004));
-    harmonics = gain * PitchShift.ar(in, 0.2, partials, 0, 0.004);
+    harmonics = 2*gain * PitchShift.ar(in, 0.2, partials, 0, 0.004);
 
 	Out.ar(voiceOutBus, voice);
 	Out.ar(harmonicsOutBus, harmonics);
@@ -236,12 +248,13 @@ SynthDef.new(\saturationEffect, {
     inputBus, outputBus, wetS = 0
     |
 
-    var source;
+    var in, saturated;
     var mixSaturated;
+	in = In.ar(inputBus, 1);
 
-	source = In.ar(inputBus, 1).softclip * 0.2;
+	saturated = in.softclip * 0.2;
 
-	mixSaturated = (source * wetS) + source*(1 - wetS);
+	mixSaturated = (saturated * wetS) + in*(1 - wetS);
     Out.ar(outputBus, mixSaturated);
 }).send(s);
 
@@ -307,6 +320,7 @@ b.sendMsg("/superOn", 1);
 ~dlIn = Bus.audio(s, 1);
 
 
+
 // Create the groups
 ~inputGroup = Group.new;
 ~harmonizerGroup = Group.after(~inputGroup);
@@ -328,6 +342,9 @@ b.sendMsg("/superOn", 1);
 ~dl = Synth.after(~rev, \delayEffect, [\inputBus, ~dlIn, \outputBus, ~finalBus], ~effectsGroup);
 
 ~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
+
+//~x = Synth.before(~ch, \sampleNote, [\outputBus,~chIn ]);
+~finalBus.scope;
 
 )
 
@@ -402,7 +419,7 @@ var setNote = {
 
 var midiOnOff = {
 	|msg|
-	if (msg[2] == 1.0,
+	if (msg[1] == 1.0,
 		{
 			~midiOn = 1;
 			~harmonizer.free;
