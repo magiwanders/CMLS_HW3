@@ -102,7 +102,7 @@ void cp5Init() {
      .setPosition(width * 0.75, height * 0.15 + (i * height * 0.07))
      .setSize((int)wEffect,(int)hEffect)  
      .setRange(0,100)
-     .setValue(50)
+     .setValue(0)
      .setFont(createFont("Consolas",15));
      
   }
@@ -138,8 +138,8 @@ void cp5Init() {
 
 public void A() {
   aIsActive = !aIsActive;
-  //int msg = aIsActive ? 1 : 0;
-  //sendMsgOSC("/onOff", (float)msg);
+  int msg = aIsActive ? 1 : 0;
+  sendMsgOSC("/playA", (float)msg);
   println("aIsActive è: " + aIsActive);
 }
 

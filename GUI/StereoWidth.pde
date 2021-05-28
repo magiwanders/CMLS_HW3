@@ -37,5 +37,10 @@ public class StereoWidth{
   }
   
   println(dPad);
+  
+  float msg = (dPad - width*0.03) / (width * 0.1 - width * 0.03);
+  
+  println("To supercollider: " + msg);
+  sendMsgOSC("/pan", msg);
   }
 }

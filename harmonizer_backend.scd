@@ -252,9 +252,10 @@ SynthDef.new(\saturationEffect, {
     var mixSaturated;
 	in = In.ar(inputBus, 1);
 
-	saturated = in.softclip * 0.2;
+	saturated = in;
+	saturated = saturated.distort;
 
-	mixSaturated = (saturated * wetS) + in*(1 - wetS);
+	mixSaturated = in + saturated*wetS;
     Out.ar(outputBus, mixSaturated);
 }).send(s);
 
@@ -343,8 +344,7 @@ b.sendMsg("/superOn", 1);
 
 ~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
 
-//~x = Synth.before(~ch, \sampleNote, [\outputBus,~chIn ]);
-~finalBus.scope;
+//~x = Synth.before(~ch, \sampleNote, [\outputBus,~satIn ]);
 
 )
 

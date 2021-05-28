@@ -60,8 +60,10 @@ void oscEvent(OscMessage msg) {
 void midiMessage(MidiMessage message, long timestamp, String bus_name) { 
   int note = (int)(message.getMessage()[1] & 0xFF) ;
   int vel = (int)(message.getMessage()[2] & 0xFF);
+  int index = note % 12;
 
   println("Bus " + bus_name + ": Note "+ note + ", vel " + vel);
+
   if (vel > 0 ) {
    if ( harmonics[numHarmonics-1] != 0 ) {
       resetHarmonics();
@@ -86,6 +88,11 @@ void midiMessage(MidiMessage message, long timestamp, String bus_name) {
      }
      sendArrayOSC("/MIDInotes", harmonicsFloat);
    }
+   
+   pianoKeyboard.setPlayedNote(index);
+  }
+  else {
+    pianoKeyboard.setPlayedNote(-1);
   }
 }
 

@@ -3,6 +3,8 @@ public class PianoKeyboard{
   float x, y, w, h;
   int[] whiteKeys = {0, 2, 4, 5, 7, 9, 11};
   int[] blackKeys = {1, 3, 6, 8, 10};
+  int playedNote = -1;
+
 
   
   public void setup(){
@@ -15,7 +17,6 @@ public class PianoKeyboard{
   
   void draw(){
   rectMode(0);
-  int notePlayed;
     
   int whiteWidth= (int)w/8;
   float blackHeight= h*3/5;
@@ -43,9 +44,12 @@ public class PianoKeyboard{
       fill(255);
     }
     
-    /*if(whiteKeys[indexWK] == notePlayed){
+    if(whiteKeys[indexWK] == playedNote){
       fill(150);
-    }*/
+    }
+    else{
+      fill(255);
+    }
     rect(xPosition, y, whiteWidth, h);
   }
   
@@ -62,12 +66,21 @@ public class PianoKeyboard{
     if(mouseX > xPosition && mouseX <= xPosition + blackWidth && mouseY > y  && mouseY - y  <= blackHeight){
       
     }
-    /*if(blackKeys[indexBK] == notePlayed){
+    if (blackKeys[indexBK] == playedNote){
       fill(150);
-    }*/
+    }
+    else{
+      fill(0);
+    }
     rect(xPosition, y, blackWidth, blackHeight);
   }
   
 }
+
+void setPlayedNote(int index){
+  playedNote = index;
+}
+
+
   
 }
