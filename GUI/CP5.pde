@@ -99,7 +99,7 @@ void cp5Init() {
   for (int i = 0; i < effectsList.length; i++){
     effect[i] = cp5.addSlider("effect" + i)
      .setLabel(effectsList[i])
-     .setPosition(width * 0.75, height * 0.2 + (i * height * 0.1))
+     .setPosition(width * 0.75, height * 0.15 + (i * height * 0.07))
      .setSize((int)wEffect,(int)hEffect)  
      .setRange(0,100)
      .setValue(50)
@@ -114,7 +114,7 @@ void cp5Init() {
   if (isMidi == true){              //NON FUNZIONA QUESTO CONTROLLO
     gain = cp5.addSlider("gain")
      .setLabel("Gain")
-     .setPosition(width * 0.2,height * 0.8)
+     .setPosition(width * 0.2,height * 0.7)
      .setSize((int) wGain, (int) hGain)  
      .setRange(0,100)
      .setValue(50  )
@@ -122,7 +122,7 @@ void cp5Init() {
   } else {
     gain = cp5.addSlider("gain")
      .setLabel("Gain")
-     .setPosition(width * 0.75, height * 0.2 + (effectsList.length * height * 0.1))
+     .setPosition(width * 0.75, height * 0.15 + (effectsList.length * height * 0.07))
      .setSize((int)wEffect,(int)hEffect)  
      .setRange(0,100)
      .setValue(50)

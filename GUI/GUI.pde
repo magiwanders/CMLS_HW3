@@ -5,21 +5,24 @@ void settings() {
   size((int)screenWidth, (int) screenHeight, P2D);
   smooth(24);
 }
-/* NOT DYNAMIC! */
+
 PFont customFont;
 PianoKeyboard pianoKeyboard = new PianoKeyboard();
 BubbleNotes bubbleNotes = new BubbleNotes();
+StereoWidth stereoWidth = new StereoWidth();
 
 void setup(){
-  frame.setResizable(true);
-  cp5Init();
-  controllerInit();
-  pianoKeyboard.setup();
-  bubbleNotes.setup();
   customFont = createFont("Consolas", 20);
   textFont(customFont);
   textSize(25);
   text("LOADING . . .", width/2.3, height/2);
+  cp5Init();
+  controllerInit();
+  pianoKeyboard.setup();
+  bubbleNotes.setup();
+  stereoWidth.setup();
+  
+
 
 }
 
@@ -37,5 +40,12 @@ void draw(){
     dropdownShow();
     cp5.draw();
   }
+  stereoWidth.init();
 
+}
+
+
+public void mouseWheel(MouseEvent event) {
+  float e = event.getCount();
+  stereoWidth.reSize(e);
 }

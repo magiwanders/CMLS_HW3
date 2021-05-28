@@ -1,12 +1,10 @@
 public class PianoKeyboard{
   
-  public float x, y, w, h;
-  public String[] whiteKeys = {"C", "D", "E", "F", "G", "A", "B"};
-  public String[] blackKeys = {"C#", "D#", "F#", "G#", "A#"};
-  
-  public PianoKeyboard(){
+  float x, y, w, h;
+  int[] whiteKeys = {0, 2, 4, 5, 7, 9, 11};
+  int[] blackKeys = {1, 3, 6, 8, 10};
 
-  }
+  
   public void setup(){
   background(255);
     x = width*0.2;
@@ -15,7 +13,10 @@ public class PianoKeyboard{
     h = height*0.35;
 }
   
-  public void draw(){
+  void draw(){
+  rectMode(0);
+  int notePlayed;
+    
   int whiteWidth= (int)w/8;
   float blackHeight= h*3/5;
   float blackWidth= whiteWidth/2;
@@ -30,43 +31,43 @@ public class PianoKeyboard{
   }
   
   /* Draw White Key */
-  for( int whiteKey=0; whiteKey < 8; whiteKey++){
+  for( int indexWK=0; indexWK < whiteKeys.length; indexWK++){
     stroke(1);
-    float keyHeight = width*0.07 + whiteKey * whiteWidth;
-    if(mouseX >= keyHeight && mouseX <= keyHeight+ whiteWidth && mouseY > y  && mouseY - y <= h &&
-    mousePressed && blackHover == keyHeight){
+    float xPosition = width*0.07 +indexWK * whiteWidth;
+    if(mouseX >= xPosition && mouseX <= xPosition+ whiteWidth && mouseY > y  && mouseY - y <= h &&
+    mousePressed && blackHover == xPosition){
       fill(255,0,0);
-      println("");
-    } else if(mouseX > keyHeight && mouseX <= keyHeight+ whiteWidth && blackHover == -1  && mouseY > y  && mouseY - y <= h){
+    } else if(mouseX > xPosition && mouseX <= xPosition+ whiteWidth && blackHover == -1  && mouseY > y  && mouseY - y <= h){
       fill(255,250,200);
     }else{
       fill(255);
     }
-    rect(keyHeight, y, whiteWidth, h);
+    
+    /*if(whiteKeys[indexWK] == notePlayed){
+      fill(150);
+    }*/
+    rect(xPosition, y, whiteWidth, h);
   }
   
   /* Draw Black Key */
-  for(int blackKey=0; blackKey<6; blackKey++){
-    noStroke();
-    float keyHeight = width*0.07 + whiteWidth*(blackKey+1)- blackWidth/2;
-    if(blackKey==2){
-      keyHeight= width*0.07 + whiteWidth*(blackKey+1)-blackWidth/2+whiteWidth;
+  float marginLeft = width*0.07;
+  float xPosition = marginLeft - blackWidth/2;
+  for (int indexBK = 0; indexBK < blackKeys.length; indexBK++){
+    
+    xPosition = xPosition + whiteWidth;
+    if (indexBK == 2){
+      xPosition = xPosition + whiteWidth;
     }
     fill(0);
-    blackHover = blackKey;
-    if( mouseX > keyHeight && mouseX <= keyHeight + blackWidth && mouseY > y  && mouseY - y  <= blackHeight
-    && mousePressed && blackHover == blackKey){
-      stroke(2);
-      fill(0,255,255);
-    }else if(mouseX > keyHeight && mouseX <= keyHeight + blackWidth && mouseY > y  && mouseY - y <= blackHeight && 
-    blackHover == blackKey){
-      stroke(2);
-      fill(50,255,50);
-    }else{
-      fill(0);
+    if(mouseX > xPosition && mouseX <= xPosition + blackWidth && mouseY > y  && mouseY - y  <= blackHeight){
+      
     }
-    rect(keyHeight, y, blackWidth, blackHeight);
+    /*if(blackKeys[indexBK] == notePlayed){
+      fill(150);
+    }*/
+    rect(xPosition, y, blackWidth, blackHeight);
   }
+  
 }
   
 }
