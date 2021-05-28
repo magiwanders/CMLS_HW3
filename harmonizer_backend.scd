@@ -32,12 +32,9 @@ s.reboot;
 
 
 SynthDef(\sampleNote, {
-	|
-	outputBus
-	|
 	var out, freq = 440;
 	out = SinOsc.ar(freq, 1);
-	Out.ar(outputBus, out)
+	Out.ar([0,1], out);
 }).send(s);
 
 
@@ -155,7 +152,7 @@ SynthDef.new(\panning, {
 
     // pan each different track
 	input = In.ar(inputBus, 6);
-	mix = Mix.new(Pan2.ar(input, pos: [0.6*pan, 0.2*pan, -1*pan, -0.6*pan, -0.2*pan]));
+	mix = Mix.new(Pan2.ar(input, pos: [pan, 0.6*pan, 0.2*pan, -1*pan, -0.6*pan, -0.2*pan]));
 
 	Out.ar(outputBus, mix);
 }).send(s);
@@ -344,8 +341,7 @@ b.sendMsg("/superOn", 1);
 
 ~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
 
-//~x = Synth.before(~ch, \sampleNote, [\outputBus,~satIn ]);
-
+~x;
 )
 
 
@@ -449,13 +445,26 @@ var setMidiNotes = {
 	msg.postln;
 };
 
+var playA = {
+	|msg|
+	if ( msg[1] == 1, {
+		~x = Synth(\sampleNote);
+	},
+	{
+		~x.free;
+	}
+	);
+
+};
+
 OSCdef('onOSCreceiver', harmonizerOnOff, "/onOff");
 OSCdef('gainOSCreceiver', setGain, "/gain");
-OSCdef('widthOSCreceiver', setWidth, "/width");
+OSCdef('widthOSCreceiver', setWidth, "/pan");
 OSCdef('effectsParamOSCreceiver', setEffectsParameters, "/effects");
 OSCdef('newNoteOSCreceiver', setNote, "/noteModify");
 OSCdef('midiONOSCreceiver', midiOnOff, "/MIDIonOff");
 OSCdef('midiNotesOSCreceiver', setMidiNotes, "/MIDInotes");
+OSCdef('playAOSCreceiver', playA, "/playA");
 
 )
 
