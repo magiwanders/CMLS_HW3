@@ -11,10 +11,12 @@ public class StereoWidth{
   }
   
   void init() {
-    stroke(2);
+    stroke(255);
+    strokeWeight(5);
     rectMode(CENTER);
     
     rect(xPad, yPad, dPad, dPad, rounded);
+    noFill();
   }
   
   public void reSize(float e){
