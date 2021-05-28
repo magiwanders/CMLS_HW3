@@ -17,12 +17,12 @@ s.reboot;
 // define a table to store the difference between reference and mapped note
 ~difference = Array.fill(~table.size, {0});
 // define a buffer on the server for consultation from the SynthDef
-~diffbuf= Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
+~diffbuf = Buffer.loadCollection(s, ~table, action:{|msg| msg.postln;});
 
-~difference2= Array.fill(~table.size, {0});
-~diffbuf2=Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
-~difference3= Array.fill(~table.size, {0});
-~diffbuf3=Buffer.loadCollection(s,~table,action:{|msg| msg.postln;});
+~difference2 = Array.fill(~table.size, {0});
+~diffbuf2 = Buffer.loadCollection(s, ~table, action:{|msg| msg.postln;});
+~difference3 = Array.fill(~table.size, {0});
+~diffbuf3 = Buffer.loadCollection(s, ~table, action:{|msg| msg.postln;});
 
 )
 
@@ -60,15 +60,17 @@ SynthDef.new(\harmonizerGUI,{
 	var amp, freq, hasFreq;
 	var partials, voice, harmonics;
     var shift1, shift2, shift3;
+	var fundamental, inFreq;
 
-	var fundamental = In.kr(inFreqBus, 1);
-	fundamental = fundamental.cpsmidi.round(1);
 
-     // the shift quantities used to compute the new pitch shifted harmonies
+	inFreq = In.kr(inFreqBus, 1);
+	fundamental = inFreq.cpsmidi.round(1);
+
+    // the shift quantities used to compute the new pitch shifted harmonies
 
 	shift1 = WrapIndex.kr(~diffbuf.bufnum, fundamental);
-	shift2= WrapIndex.kr(~diffbuf2.bufnum, fundamental);
-	shift3= WrapIndex.kr(~diffbuf3.bufnum, fundamental);
+	shift2 = WrapIndex.kr(~diffbuf2.bufnum, fundamental);
+	shift3 = WrapIndex.kr(~diffbuf3.bufnum, fundamental);
 
     partials = [
            0.5*shift1,
@@ -78,9 +80,11 @@ SynthDef.new(\harmonizerGUI,{
          0.5*shift3,
            1*shift3,
     ];
-    //split two cases: main voice (uneffected and harmonies)
+
+    // split two cases: main voice (uneffected and harmonies)
 	voice = Mix.new(PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004));
-    harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
+    harmonics = gain * PitchShift.ar(in, 0.2, partials, 0, 0.004);
+
 	Out.ar(voiceOutBus, voice);
 	Out.ar(harmonicsOutBus, harmonics);
 }).send(s);
@@ -90,7 +94,7 @@ SynthDef.new(\harmonizerGUI,{
 SynthDef.new(\harmonizerMIDI,{
     |
     inputBus, inFreqBus,
-	harmonic1=64, harmonic2=67, harmonic3=71,
+	harmonic1 = 64, harmonic2 = 67, harmonic3 = 71,
     voiceOutBus, harmonicsOutBus, gain = 0
     |
 
@@ -98,9 +102,11 @@ SynthDef.new(\harmonizerMIDI,{
 	var amp, freq, hasFreq;
 	var partials, voice, harmonics;
     var shift1, shift2, shift3;
+	var fundamental, inFreq;
 
-	var fundamental = In.kr(inFreqBus, 1);
-	fundamental = fundamental.cpsmidi.round(1);
+	//in = In.ar(inputBus, 1)
+	inFreq = In.kr(inFreqBus, 1);
+	fundamental = inFreq.cpsmidi.round(1);
 
      // the shift quantities used to compute the new pitch shifted harmonies
     shift1 = (fundamental - harmonic1).midiratio.reciprocal;
@@ -115,9 +121,11 @@ SynthDef.new(\harmonizerMIDI,{
          0.5*shift3,
            1*shift3,
     ];
-    //split two cases: main voice (uneffected and harmonies)
+
+    // split two cases: main voice (uneffected and harmonies)
 	voice = Mix.new(PitchShift.ar(in, 0.2, [0.5, 1], 0, 0.004));
-    harmonics = gain*PitchShift.ar(in, 0.2, partials, 0, 0.004);
+    harmonics = gain * PitchShift.ar(in, 0.2, partials, 0, 0.004);
+
 	Out.ar(voiceOutBus, voice);
 	Out.ar(harmonicsOutBus, harmonics);
 }).send(s);
@@ -127,12 +135,14 @@ SynthDef.new(\harmonizerMIDI,{
  // this synth applies the given panning to the harmonics
 SynthDef.new(\panning, {
     |
-    pan=0.5, inputBus, outputBus
+    pan = 0.5, inputBus, outputBus
     |
-    var input = In.ar(inputBus, 6);
-    var mix;
-    // pan each different track
 
+    var input;
+    var mix;
+
+    // pan each different track
+	input = In.ar(inputBus, 6);
 	mix = Mix.new(Pan2.ar(input, pos: [0.6*pan, 0.2*pan, -1*pan, -0.6*pan, -0.2*pan]));
 
 	Out.ar(outputBus, mix);
@@ -141,70 +151,115 @@ SynthDef.new(\panning, {
  //final summing synth
 SynthDef.new(\finalSum, {
     |
-    inputBus, numVoices = 8
+    inputBus, outputBus = 0, numVoices = 8
     |
-	var input = In.ar(inputBus, 1);
+
+	var input;
     var out;
+
+	input = In.ar(inputBus, 1);
+
     7.do({
-        out = AllpassN.ar(input, 0.040, [0.040.rand,0.040.rand], 2)
+        out = AllpassN.ar(input, 0.040, [0.040.rand, 0.040.rand], 2)
     });
-    Out.ar(0,out)
+
+    Out.ar(outputBus, out);
 }).send(s);
 
 )
 
 ////////////////////////////////// EFFECTS /////////////////////////////////////////////////////
-
 (
-SynthDef.new(\flangerEffect, {
-    |
-    rate = 1, maxDelay = 0.01, minDelay = 0.001, decayTime = 1, amp = 1, wetF = 0,
-    inputBus, outputBus
-    |
-    var source = In.ar(inputBus,1);
-    var flanged = CombC.ar(source, maxDelay, SinOsc.ar(rate, 0, (maxDelay * 0.5) - minDelay, (maxDelay * 0.5) + minDelay), decayTime, amp);
-    var mixFlanged;
-    mixFlanged = source*(1-wetF) + flanged*wetF;
-    Out.ar(outputBus, mixFlanged);
-}).send(s);
 
 SynthDef.new(\chorusEffect, {
     |
     rate = 1, maxDelay = 0.05, minDelay = 0.01, wetC = 0,
     inputBus, outputBus
     |
-    var num = 8;
-    var source = In.ar(inputBus,1);
+
+    var num;
+    var source;
     var mixChorused;
-    var input = source * num.reciprocal;
-    var lfos = Array.fill(num, {SinOsc.ar(rate * rrand(0.95, 1.05), rrand(0.0, 1.0), (maxDelay * 0.5) - minDelay,  (maxDelay * 0.5) + minDelay)});
-    var voices = DelayC.ar(input, maxDelay, lfos);
-    voices = Mix.ar(voices);
-    mixChorused = ((1-wetC)*input) + (wetC*voices);
+    var input;
+    var lfos;
+    var voices;
+
+	num = 8;
+	source = In.ar(inputBus, 1);
+	input = source * num.reciprocal;
+	lfos = Array.fill(num, {SinOsc.ar(rate * rrand(0.95, 1.05), rrand(0.0, 1.0), (maxDelay * 0.5) - minDelay,  (maxDelay * 0.5) + minDelay)});
+
+	voices = Mix.ar(DelayC.ar(input, maxDelay, lfos));
+    mixChorused = ((1 - wetC) * input) + (wetC * voices);
+
     Out.ar(outputBus, mixChorused);
 }).send(s);
 
+
+SynthDef.new(\flangerEffect, {
+    |
+    rate = 1, maxDelay = 0.01, minDelay = 0.001, decayTime = 1, amp = 1, wetF = 0,
+    inputBus, outputBus
+    |
+
+    var source;
+    var flanged;
+    var mixFlanged;
+
+	source = In.ar(inputBus, 1);
+	flanged = CombC.ar(source, maxDelay, SinOsc.ar(rate, 0, (maxDelay * 0.5) - minDelay, (maxDelay * 0.5) + minDelay), decayTime, amp);
+	mixFlanged = source * (1 - wetF) + (flanged * wetF);
+
+    Out.ar(outputBus, mixFlanged);
+}).send(s);
+
+
 SynthDef.new(\phaserEffect, {
     |
-    inputBus, outputBus, wetP = 0, freq=0.2
+    inputBus, outputBus, wetP = 0, freq = 0.2
     |
-    var source = In.ar(inputBus,1); //get two channels of input starting (and ending) on bus 0
-    var phased = AllpassN.ar(source,0.02,SinOsc.kr(freq,0,0.01,0.01)); //max delay of 20msec
+
+    var source;
+    var phased;
     var mixPhased;
-     mixPhased = source*(1-wetP) + phased*wetP;
-    Out.ar(outputBus, mixPhased); //adds to bus 0 where original signal is already playing
+
+	source = In.ar(inputBus, 1); // get two channels of input starting (and ending) on bus 0
+	phased = AllpassN.ar(source, 0.02, SinOsc.kr(freq, 0, 0.01, 0.01)); // max delay of 20msec
+	mixPhased = source * (1 - wetP) + (phased * wetP);
+
+    Out.ar(outputBus, mixPhased); // adds to bus 0 where original signal is already playing
 }).send(s);
+
+
+SynthDef.new(\saturationEffect, {
+    |
+    inputBus, outputBus, wetS = 0
+    |
+
+    var source;
+    var mixSaturated;
+
+	source = In.ar(inputBus, 1).softclip * 0.2;
+
+	mixSaturated = (source * wetS) + source*(1 - wetS);
+    Out.ar(outputBus, mixSaturated);
+}).send(s);
+
 
 SynthDef.new(\reverbEffect, {
     |
     inputBus, outputBus, wetR = 0
     |
-    // play with the room size
-    var source = In.ar(inputBus,1);
-    var reverb = GVerb.ar(source, 105, 5, 0.7, 0.8, 60, 0.1, 0.5, 0.4);
+
+    // room size
+    var source;
+    var reverb;
     var mixReverbed;
 
-    mixReverbed = reverb*wetR + source*(1-wetR);
+	source = In.ar(inputBus, 1);
+	reverb = GVerb.ar(source, 105, 5, 0.7, 0.8, 60, 0.1, 0.5, 0.4);
+
+	mixReverbed = (reverb * wetR) + source * (1 - wetR);
     Out.ar(outputBus, mixReverbed);
 }).send(s);
 
@@ -212,26 +267,19 @@ SynthDef.new(\delayEffect, {
     |
     inputBus, outputBus, wetD = 0
     |
+
     var add;
-    var source = In.ar(inputBus,1);
-    var delay = DelayL.ar(source, 0.3, MouseX.kr(0,0.3), 1, add = 0.0);
+    var source;
+    var delay;
     var mixDelayed;
 
-    mixDelayed = delay*wetD + source*(1-wetD);
+	source = In.ar(inputBus, 1);
+	delay = DelayL.ar(source, 0.3, MouseX.kr(0,0.3), 1, add = 0.0);
+
+	mixDelayed = (delay * wetD) + source * (1 - wetD);
     Out.ar(outputBus, mixDelayed);
 }).send(s);
 
-SynthDef.new(\saturationEffect, {
-    |
-    inputBus, outputBus, wetS = 0
-    |
-    var source = In.ar(inputBus,1);
-    var mixSaturated;
-
-    source = source.softclip * 0.2;
-    mixSaturated = source*wetS + source*(1-wetS);
-    Out.ar(outputBus, mixSaturated);
-}).send(s);
 
 )
 /////////////////////////////////////// INIT /////////////////////////////////////////////////
@@ -244,23 +292,24 @@ b = NetAddr("127.0.0.1", 12000);
 b.sendMsg("/superOn", 1);
 
 // create the busses
-~trackerOut = Bus.audio(s,1);
+~trackerOut = Bus.audio(s, 1);
 ~harmonizerOut = Bus.audio(s, 6);
-~finalBus = Bus.audio(s,1);
+~finalBus = Bus.audio(s, 1);
 
 // this bus contains the frequency of the note sung by the user
 ~fundamentalBus = Bus.control(s, 1);
 
-~flIn = Bus.audio(s,1);
-~phIn = Bus.audio(s,1);
-~chIn = Bus.audio(s,1);
-~revIn = Bus.audio(s,1);
-~dlIn = Bus.audio(s,1);
-~satIn = Bus.audio(s,1);
+~chIn = Bus.audio(s, 1);
+~flIn = Bus.audio(s, 1);
+~phIn = Bus.audio(s, 1);
+~satIn = Bus.audio(s, 1);
+~revIn = Bus.audio(s, 1);
+~dlIn = Bus.audio(s, 1);
+
 
 // Create the groups
 ~inputGroup = Group.new;
-~harmonizerGroup = Group.after(~micGroup);
+~harmonizerGroup = Group.after(~inputGroup);
 ~panningGroup = Group.after(~harmonizerGroup);
 ~effectsGroup = Group.after(~panningGroup);
 ~outputGroup = Group.after(~effetcsGroup);
@@ -278,7 +327,7 @@ b.sendMsg("/superOn", 1);
 ~rev = Synth.after(~sat, \reverbEffect, [\inputBus, ~revIn, \outputBus, ~dlIn], ~effectsGroup);
 ~dl = Synth.after(~rev, \delayEffect, [\inputBus, ~dlIn, \outputBus, ~finalBus], ~effectsGroup);
 
-~finalSum = Synth.new( \finalSum, [\inputBus, ~finalBus], ~outputGroup);
+~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
 
 )
 
@@ -291,7 +340,7 @@ var harmonizerOnOff = {
 	|msg|
 	if (msg[1] == 1.0,
 		{
-			~root = Synth.(\voiceTracker, [\outputBus,  ~trackerOut, \outFreqBus, ~fundamentalBus], ~inputGroup);
+			~root = Synth(\voiceTracker, [\outputBus,  ~trackerOut, \outFreqBus, ~fundamentalBus], ~inputGroup);
 			~root.postln;
 		},
 		{
@@ -299,7 +348,7 @@ var harmonizerOnOff = {
 		~root.postln;
 		}
 	);
-	msg[1].postln;
+	msg.postln;
 };
 
 var setEffectsParameters = {
@@ -322,6 +371,7 @@ var setGain = {
 var setWidth = {
 	|msg|
 	~panning.set(\pan, msg[1]);
+	msg.postln;
 };
 
 var setNote = {
@@ -379,6 +429,7 @@ var setMidiNotes = {
 			~harmonizer.set(\harmonic3, msg[3].asInteger);
 		}
 	);
+	msg.postln;
 };
 
 OSCdef('onOSCreceiver', harmonizerOnOff, "/onOff");
