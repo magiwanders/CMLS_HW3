@@ -5,9 +5,9 @@ public class BubbleNotes{
   public float y;        //position on y
   public float w;        //width
   public float h;        //heigth
-
+  String[] note = new String [3];
   // Five moving bodies
-  Mover[] movers = new Mover[4];
+  Mover[] movers = new Mover[3];
   
   // Liquid
   public Liquid liquid;
@@ -54,15 +54,13 @@ public class BubbleNotes{
     fill(255);
   }
   
- 
-  
-  //Restart all the Mover objects randomly
-   public void mousePressed() {
-    reset();
+  void setNote(String[] name){
+    note = name;
   }
+ 
   public void reset() {
     for (int i = 0; i < movers.length; i++) {
-      movers[i] = new Mover(random(2, 5), width*0.25+i*width*0.08, 600);
+      movers[i] = new Mover(random(2, 5), width*0.25+i*width*0.08, 600, note[i]);
     }
   }
 
@@ -91,7 +89,7 @@ public class Mover {
   // Mass is tied to size
   float mass;
 
-  Mover(float m, float x, float y) {
+  Mover(float m, float x, float y, String note) {
     mass = m;
     position = new PVector(x, y);
     velocity = new PVector(0, 0);
@@ -121,7 +119,9 @@ public class Mover {
   public void display() {
     stroke(255);
     strokeWeight(2);
-    fill(255, 200);
+    fill(255, 150);
+    textAlign(CENTER);
+    text("C",position.x,position.y + position.y*0.01); 
     ellipse(position.x, position.y, mass*16, mass*16);
   }
 

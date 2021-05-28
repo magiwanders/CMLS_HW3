@@ -49,3 +49,9 @@ public void mouseWheel(MouseEvent event) {
   float e = event.getCount();
   stereoWidth.reSize(e);
 }
+
+  
+//Restart all the Mover objects randomly
+ public void mousePressed() {
+  bubbleNotes.reset();
+}
