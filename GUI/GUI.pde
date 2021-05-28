@@ -1,35 +1,41 @@
-import netP5.*;
-import oscP5.*;
-
-PFont customFont;
-PianoKeyboard pianoKeyboard = new PianoKeyboard(100, 700);
-Polygon hexagon = new Polygon(1200, 720, 70, 6);
-
 void settings() {
+  float screenWidth = displayWidth - (displayWidth*0.05);
+  float screenHeight = displayHeight - (displayHeight*0.1);
   // Processing settings
-  size(1500, 900, P2D);
+  size((int)screenWidth, (int) screenHeight, P2D);
   smooth(24);
 }
+/* NOT DYNAMIC! */
+PFont customFont;
+PianoKeyboard pianoKeyboard = new PianoKeyboard(width*3, height*2, width*11, height*3);
+BubbleNotes bubbleNotes = new BubbleNotes();
 
 void setup(){
+  frame.setResizable(true);
   cp5Init();
   controllerInit();
+  pianoKeyboard.setup();
+  bubbleNotes.setup();
   customFont = createFont("Consolas", 20);
   textFont(customFont);
   textSize(25);
   text("LOADING . . .", width/2.3, height/2);
+
 }
-  
+
 
 void draw(){
   background(color(20,20,20));
+  
+  if(isMidi == true){       //Midi GUI
+    pianoKeyboard.draw();
+    bubbleNotes.draw();
+    dropdownHide();
+    textHide();
+  } else {                    
+    textShow();
+    dropdownShow();
+    cp5.draw();
+  }
 
-  /* All CP5 elements*/
-  cp5.draw();
-  
-  /* PianoKeyboard*/
-  pianoKeyboard.draw();
-  
-  /* Pentagon */
-  hexagon.draw();
 }
