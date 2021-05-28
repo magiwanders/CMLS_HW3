@@ -1,20 +1,20 @@
 public class PianoKeyboard{
   
-  int x, y, w, h;
+  public float x, y, w, h;
   
-  public PianoKeyboard(int xPosition, int yPosition, int wSize, int hSize){
-    x = xPosition;
-    y = yPosition;
-    w = wSize;
-    h = hSize;
+  public PianoKeyboard(){
+
   }
-  
   public void setup(){
   background(255);
+    x = width*0.2;
+    y = height*0.2;
+    w = width*0.6;
+    h = height*0.35;
 }
   
   public void draw(){
-  int whiteWidth= w/8;
+  int whiteWidth= (int)w/8;
   float blackHeight= h*3/5;
   float blackWidth= whiteWidth/2;
   int blackHover= -1;
@@ -30,7 +30,7 @@ public class PianoKeyboard{
   /* Draw White Key */
   for( int whiteKey=0; whiteKey < 8; whiteKey++){
     stroke(1);
-    int keyHeight =100 + whiteKey * whiteWidth;
+    float keyHeight = width*0.07 + whiteKey * whiteWidth;
     if(mouseX >= keyHeight && mouseX <= keyHeight+ whiteWidth && mouseY > y  && mouseY - y <= h &&
     mousePressed && blackHover == keyHeight){
       fill(255,0,0);
@@ -45,9 +45,9 @@ public class PianoKeyboard{
   /* Draw Black Key */
   for(int blackKey=0; blackKey<6; blackKey++){
     noStroke();
-    float keyHeight = 100 + whiteWidth*(blackKey+1)- blackWidth/2;
+    float keyHeight = width*0.07 + whiteWidth*(blackKey+1)- blackWidth/2;
     if(blackKey==2){
-      keyHeight= 100 + whiteWidth*(blackKey+1)-blackWidth/2+whiteWidth;
+      keyHeight= width*0.07 + whiteWidth*(blackKey+1)-blackWidth/2+whiteWidth;
     }
     fill(0);
     blackHover = blackKey;

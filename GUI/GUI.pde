@@ -7,7 +7,7 @@ void settings() {
 }
 /* NOT DYNAMIC! */
 PFont customFont;
-PianoKeyboard pianoKeyboard = new PianoKeyboard(width*3, height*2, width*11, height*3);
+PianoKeyboard pianoKeyboard = new PianoKeyboard();
 BubbleNotes bubbleNotes = new BubbleNotes();
 
 void setup(){

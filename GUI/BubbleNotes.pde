@@ -9,10 +9,7 @@ public class BubbleNotes{
 
   }*/
   /* Sizes */
-  float x = 0;                 //position on x
-  float y = height*0.5;        //position on y
-  float w = width*0.5;         //width
-  float h = height*0.5;        //heigth
+
       // Five moving bodies
   Mover[] movers = new Mover[4];
   
@@ -23,6 +20,10 @@ public class BubbleNotes{
     
   public void setup() {
     reset();
+    float x = 0;                 //position on x
+    float y = height*0.7;        //position on y
+    float w = width*0.72;         //width
+    float h = height*0.3;        //heigth
     liquid = new Liquid(x, y, w, h, 0.1);
     // Create liquid object
   }
