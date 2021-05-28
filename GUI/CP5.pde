@@ -11,6 +11,7 @@ DropdownNote[] secondDropdownNote = new DropdownNote[musicalDropdownNotes.length
 DropdownNote[] thirdDropdownNote = new DropdownNote[musicalDropdownNotes.length];
 
 Textlabel[] note = new Textlabel[musicalDropdownNotes.length];
+Textlabel Title;
 
 Button midiButton, onOffButton, A;
 
@@ -30,19 +31,26 @@ void cp5Init() {
   int h = height / 18;
   int w = width / 10;
   
+  /* TITLE */
+  Title = cp5.addTextlabel("Title")
+                    .setText("Delphinator.")
+                    .setPosition(width * 0.40, height * 0.03)
+                    .setColorValue(0xffffff00)
+                    .setFont(createFont("Euclid-Italic",30))
+                    ;
   
   /* TOP BUTTONS */
   onOffButton = cp5.addButton("OnOff")
   .setWidth(w)
   .setHeight(h)
   .setLabel("On/Off")
-  .setPosition(width * 0.25, height * 0.03)
+  .setPosition(width * 0.25, height * 0.06)
   .setFont(createFont("Consolas",12));
   
   midiButton = cp5.addButton("Midi")
     .setWidth(w)
     .setHeight(h)
-    .setPosition(width * 0.55, height * 0.03)
+    .setPosition(width * 0.55, height * 0.06)
     .setColorBackground(color(100, 100, 100))
     .setColorActive(color(50, 150, 150))
     .setLabel("MIDI")
