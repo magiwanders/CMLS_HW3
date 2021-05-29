@@ -3,7 +3,7 @@ public class PianoKeyboard{
   float x, y, w, h;
   int[] whiteKeys = {0, 2, 4, 5, 7, 9, 11};
   int[] blackKeys = {1, 3, 6, 8, 10};
-  int playedNote = -1;
+  int[] playedNotes;
 
 
   
@@ -13,6 +13,7 @@ public class PianoKeyboard{
     y = height*0.2;
     w = width*0.6;
     h = height*0.35;
+    playedNotes  = new int[]{-1,-1,-1};
 }
   
   void draw(){
@@ -44,8 +45,8 @@ public class PianoKeyboard{
       fill(255);
     }
     
-    if(whiteKeys[indexWK] == playedNote){
-      fill(150);
+    if(isInArray(playedNotes, whiteKeys[indexWK])){
+      fill(SECONDARY);
     }
     else{
       fill(255);
@@ -66,8 +67,8 @@ public class PianoKeyboard{
     if(mouseX > xPosition && mouseX <= xPosition + blackWidth && mouseY > y  && mouseY - y  <= blackHeight){
       
     }
-    if (blackKeys[indexBK] == playedNote){
-      fill(150);
+    if (isInArray(playedNotes, blackKeys[indexBK])){
+      fill(SECONDARY);
     }
     else{
       fill(0);
@@ -77,9 +78,22 @@ public class PianoKeyboard{
   
 }
 
-void setPlayedNote(int index){
-  playedNote = index;
+void setPlayedNote(int[] indexes){
+  playedNotes = indexes;
+  println("Test: " + isInArray(playedNotes, 0));
+
 }
+
+boolean isInArray( int[] playedNotes, int note){
+   for (int i = 0; i < playedNotes.length; i++){
+       if (playedNotes[i] == note){
+         return true;
+       }
+   }
+   return false;
+}
+
+
 
 
   

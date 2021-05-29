@@ -5,7 +5,7 @@ public class BubbleNotes{
   public float y;        //position on y
   public float w;        //width
   public float h;        //heigth
-  String[] note = new String [3];
+  String[] note = new String[3];
   // Five moving bodies
   Mover[] movers = new Mover[3];
   
@@ -30,6 +30,8 @@ public class BubbleNotes{
     // Draw water
     liquid.display();
   
+   if (!Arrays.asList(movers).contains(null)){
+
     for (Mover mover : movers) {
   
       // Is the Mover in the liquid?
@@ -50,20 +52,23 @@ public class BubbleNotes{
       mover.display();
       mover.checkEdges();
     }
-  
+   }
     fill(255);
   }
   
-  void setNote(String[] name){
+  void setNotes(String[] name){
     note = name;
   }
  
   public void reset() {
-    for (int i = 0; i < movers.length; i++) {
-      movers[i] = new Mover(random(2, 5), width*0.25+i*width*0.08, 600, note[i]);
+    
+    if (!Arrays.asList(note).contains(null)){
+      for (int i = 0; i < movers.length; i++) {
+          movers[i] = new Mover(random(2, 5), width*0.25+i*width*0.08, 600, note[i]);
+       }
     }
+  
   }
-
 }
   
 
@@ -85,15 +90,17 @@ public class Mover {
   PVector position;
   PVector velocity;
   PVector acceleration;
+  String note;
 
   // Mass is tied to size
   float mass;
 
-  Mover(float m, float x, float y, String note) {
+  Mover(float m, float x, float y, String n) {
     mass = m;
     position = new PVector(x, y);
     velocity = new PVector(0, 0);
     acceleration = new PVector(0, 0);
+    note = n;
   }
 
   // Newton's 2nd law: F = M * A
@@ -121,7 +128,7 @@ public class Mover {
     strokeWeight(2);
     fill(255, 150);
     textAlign(CENTER);
-    text("C",position.x,position.y + position.y*0.01); 
+    text(note,position.x,position.y + position.y*0.01); 
     ellipse(position.x, position.y, mass*16, mass*16);
   }
 

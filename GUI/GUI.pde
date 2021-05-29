@@ -59,7 +59,7 @@ public void mouseWheel(MouseEvent event) {
 }
 
   
-//Restart all the Mover objects randomly
+/*//Restart all the Mover objects randomly
  public void mousePressed() {
   bubbleNotes.reset();
-}
+}*/

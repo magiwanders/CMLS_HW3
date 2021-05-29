@@ -17,6 +17,8 @@ int fundamental = 60;
 int numHarmonics = 3;
 int numEffects = 6;
 int[] harmonics = new int[numHarmonics];
+String[] harmonicsString = new String[numHarmonics];
+int[] indexes = new int[] {-1,-1,-1};
 float[] effectsValues = new float[numEffects];
 
 void controllerInit() {
@@ -62,11 +64,11 @@ void oscEvent(OscMessage msg) {
 void midiMessage(MidiMessage message, long timestamp, String bus_name) { 
   int note = (int)(message.getMessage()[1] & 0xFF) ;
   int vel = (int)(message.getMessage()[2] & 0xFF);
-  int index = note % 12;
+  
 
   println("Bus " + bus_name + ": Note "+ note + ", vel " + vel);
 
-  if (vel > 0 ) {
+  if (vel > 0) {
    if ( harmonics[numHarmonics-1] != 0 ) {
       resetHarmonics();
    }
@@ -76,6 +78,7 @@ void midiMessage(MidiMessage message, long timestamp, String bus_name) {
    for ( int i = 0; i < numHarmonics && !breakCycle; i++ ) {
       if (harmonics[i] == 0 ){
         harmonics[i] = note;
+        
         breakCycle = true;
       }
     }
@@ -86,18 +89,26 @@ void midiMessage(MidiMessage message, long timestamp, String bus_name) {
      float[] harmonicsFloat = new float[harmonics.length];
      
      for ( int i = 0; i < numHarmonics; i++ ) {  
-       harmonicsFloat[i] = (float) harmonics[i];       
+       harmonicsFloat[i] = (float) harmonics[i];   
+       String playedNoteString = convertToNote(harmonics[i]);
+       harmonicsString[i] = playedNoteString;
+       indexes[i] = harmonics[i] % 12;
+       println("Indexes of the keys: " + indexes[i]); 
+
      }
      sendArrayOSC("/MIDInotes", harmonicsFloat);
+     bubbleNotes.setNotes(harmonicsString);     
+     bubbleNotes.reset();
+     Arrays.sort(indexes);
    }
    
-   pianoKeyboard.setPlayedNote(index);
-   String playedNoteString = convertToNote(note);
-   println("Played note: " + playedNoteString);
+  pianoKeyboard.setPlayedNote(indexes);
+
 
   }
   else {
-    pianoKeyboard.setPlayedNote(-1);
+    indexes = new int[]{-1,-1,-1};
+    pianoKeyboard.setPlayedNote(indexes);
   }
 }
 
