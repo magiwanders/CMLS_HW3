@@ -6,6 +6,8 @@ import javax.sound.midi.MidiMessage;
 import oscP5.*;
 import netP5.*;
 import java.util.Arrays;
+import java.lang.String;
+
 
 MidiBus myBus; 
 
@@ -90,6 +92,9 @@ void midiMessage(MidiMessage message, long timestamp, String bus_name) {
    }
    
    pianoKeyboard.setPlayedNote(index);
+   String playedNoteString = convertToNote(note);
+    println("Played note: " + playedNoteString);
+
   }
   else {
     pianoKeyboard.setPlayedNote(-1);
@@ -127,4 +132,10 @@ int convertToMIDI(String note) {
 
   // If nothing was found, we return -1.
   return -1;
+}
+
+String convertToNote(int note){
+  String[] notes = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B "};
+  String noteString = notes[note%12];
+ return  noteString;
 }
