@@ -42,10 +42,7 @@ public class StereoWidth{
   
   float msg = (dPad - width*0.03) / (width * 0.1 - width * 0.03);
   
-  int msg1 = (int)(msg * 10);
-  println(msg1);
-  
-  msg = (float) msg1 / 10;
+  msg = round(msg*10)/10.0;
   
   println("To supercollider: " + msg);
   sendMsgOSC("/pan", msg);
