@@ -360,7 +360,7 @@ b.sendMsg("/superOn", 1);
 
 
 //////////////////////////////////////////////// CONTROLLER //////////////////////////////////////////
-(
+  (
 
 //the functions called after a message is received
 var harmonizerOnOff = {
