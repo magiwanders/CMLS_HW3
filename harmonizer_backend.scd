@@ -43,7 +43,7 @@ s.reboot;
 
 
 SynthDef(\sampleNote, {
-	var out, freq = 440;
+	var out, freq = 261.6;
 	out = SinOsc.ar(freq, 1);
 	Out.ar([0,1], out);
 }).send(s);
@@ -460,7 +460,7 @@ var setMidiNotes = {
 	msg.postln;
 };
 
-var playA = {
+var playC = {
 	|msg|
 	if ( msg[1] == 1, {
 		~x = Synth(\sampleNote);
@@ -479,7 +479,7 @@ OSCdef('effectsParamOSCreceiver', setEffectsParameters, "/effects");
 OSCdef('newNoteOSCreceiver', setNote, "/noteModify");
 OSCdef('midiONOSCreceiver', midiOnOff, "/MIDIonOff");
 OSCdef('midiNotesOSCreceiver', setMidiNotes, "/MIDInotes");
-OSCdef('playAOSCreceiver', playA, "/playA");
+OSCdef('playCOSCreceiver', playC, "/playC");
 
 )
 

@@ -93,7 +93,7 @@ void midiMessage(MidiMessage message, long timestamp, String bus_name) {
    
    pianoKeyboard.setPlayedNote(index);
    String playedNoteString = convertToNote(note);
-    println("Played note: " + playedNoteString);
+   println("Played note: " + playedNoteString);
 
   }
   else {
