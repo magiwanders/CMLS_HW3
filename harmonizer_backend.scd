@@ -194,7 +194,7 @@ SynthDef.new(\finalSum, {
 
 SynthDef.new(\chorusEffect, {
     |
-    rate = 1, maxDelay = 0.05, minDelay = 0.01, wetC = 0,
+    rate = 0.02, maxDelay = 0.05, minDelay = 0.01, wetC = 0,
     inputBus, outputBus
     |
 
@@ -220,7 +220,7 @@ SynthDef.new(\chorusEffect, {
 
 SynthDef.new(\flangerEffect, {
     |
-    rate = 1, maxDelay = 0.01, minDelay = 0.001, decayTime = 1, amp = 1, wetF = 0,
+    rate = 0.02, maxDelay = 0.01, minDelay = 0.001, decayTime = 1, amp = 1, wetF = 0,
     inputBus, outputBus
     |
 
@@ -239,7 +239,7 @@ SynthDef.new(\flangerEffect, {
 
 SynthDef.new(\phaserEffect, {
     |
-    inputBus, outputBus, wetP = 0, freq = 0.2
+    inputBus, outputBus, wetP = 0, freq = 0.02
     |
 
     var source;
@@ -264,11 +264,10 @@ SynthDef.new(\saturationEffect, {
     var mixSaturated;
 	in = In.ar(inputBus, 1);
 
-	saturated = in;
-	saturated = saturated.distort;
+	saturated = (in.distort).distort;
 
 	//mixSaturated = in + saturated*wetS;
-	mixSaturated = Mix([in*(1-wetS), saturated*wetS]);
+	mixSaturated = Mix([in*(1-wetS), saturated*wetS*2]);
     Out.ar(outputBus, mixSaturated);
 }).send(s);
 
@@ -376,7 +375,6 @@ b.sendMsg("/superOn", 1);
 ~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
 
 ~x;
-~dlIn.scope;
 
 )
 

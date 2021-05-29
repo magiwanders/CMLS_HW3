@@ -30,6 +30,10 @@ void controllerInit() {
   oscP5 = new OscP5(this,12000);
   netAddress = new NetAddress("127.0.0.1", 57120);
   sendMsgOSC("/MIDIonOff", 0);
+  sendArrayOSC("/noteModify", new float[]{1, 0, 64});
+  sendArrayOSC("/noteModify", new float[]{2, 0, 67});
+  sendArrayOSC("/noteModify", new float[]{3, 0, 71});
+  
 }
 
 void resetHarmonics() {
