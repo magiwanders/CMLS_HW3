@@ -1,6 +1,6 @@
 import java.text.DecimalFormat;
 
-public class StereoWidth{
+class StereoWidth{
     
   float xPan, yPan, dPan, rounded;
   
@@ -10,14 +10,14 @@ public class StereoWidth{
     yPan = height * 0.3 + (7 * height * 0.07);
     dPan = width * 0.05;
     rounded = 1;
-    stroke(255);
-    strokeWeight(5);
+
     
 
   }
   
   void init() {
-
+    stroke(255);
+    strokeWeight(5);
     rectMode(CENTER);
     fill(BACKGROUND);
     rect(xPan, yPan, dPan, dPan, rounded);
