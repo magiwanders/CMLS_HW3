@@ -28,10 +28,6 @@ void setup(){
   stereoWidth.setup();
   pianoKeyboard.setup();
   bubbleNotes.setup();
-  
-  
-
-
 }
 
 
