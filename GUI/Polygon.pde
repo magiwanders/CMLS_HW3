@@ -1,3 +1,5 @@
+/* NEVER USED */
+
 public class Polygon{
   float x, y, radius, angle; 
   int numPoints;

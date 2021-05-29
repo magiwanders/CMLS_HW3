@@ -49,25 +49,26 @@ public class DropdownNote{
           ddl.addItem(musicalNotes[id], musicalNotes[id]);
           id++;
         }
-      //ddl.scroll(0);
       ddl.setColorBackground(color(60));
       ddl.setColorActive(color(255, 128));
     }
+
+    /* Method to hide component */
+    public void hide(){
+      dropdownNote.hide();
+    }
     
-public void hide(){
-  dropdownNote.hide();
-}
-
-public void show(){
-  dropdownNote.show();
-}
-
-public String getItem(int n){
-  return dropdownNote.getItem(n).get("name").toString();
-}
-
-public String getName(){
-  return dropdownNote.getCaptionLabel().getText();
-}
+    /* Method to show component */
+    public void show(){
+      dropdownNote.show();
+    }
+    
+    public String getItem(int n){
+      return dropdownNote.getItem(n).get("name").toString();
+    }
+    
+    public String getName(){
+      return dropdownNote.getCaptionLabel().getText();
+    }
    
 }

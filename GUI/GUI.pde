@@ -21,10 +21,12 @@ public color BACKGROUND = color(0,14,41);
 void setup(){
   customFont = createFont("Consolas", 20); //<>//
     
-  
+  //setup components
   pianoKeyboard.setup();
   bubbleNotes.setup();
   stereoWidth.setup();
+  
+  //Loading text
   background(BACKGROUND);
   textFont(customFont);
   textSize(25);
@@ -32,10 +34,9 @@ void setup(){
   
   cp5Init();
   controllerInit();
+  
   img = loadImage("logo.png");
   
-
-
 }
 
 
@@ -55,6 +56,7 @@ void draw(){
     dropdownShow();
     cp5.draw();
   }
+  
   image(img, width*0.05, height*0.75);
 
 }
@@ -64,9 +66,3 @@ public void mouseWheel(MouseEvent event) {
   float e = event.getCount();
   stereoWidth.reSize(e);
 }
-
-  
-/*//Restart all the Mover objects randomly
- public void mousePressed() {
-  bubbleNotes.reset();
-}*/

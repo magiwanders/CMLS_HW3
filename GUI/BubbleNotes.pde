@@ -64,26 +64,14 @@ public class BubbleNotes{
     
     if (!Arrays.asList(note).contains(null)){
       for (int i = 0; i < movers.length; i++) {
-          movers[i] = new Mover(random(2, 5), width*0.25+i*width*0.08, 600, note[i]);
+          movers[i] = new Mover(random(2, 5), width*0.4+i*width*0.08, 600, note[i]);
        }
     }
   
   }
 }
-  
 
-
-
-/**
- * Forces (Gravity and Fluid Resistence) with Vectors 
- * by Daniel Shiffman.  
- * 
- * Demonstration of multiple force acting on bodies (Mover class)
- * Bodies experience gravity continuously
- * Bodies experience fluid resistance when in "water"
- */
-
-
+/* Create and move bubble */
 public class Mover {
 
   // position, velocity, and acceleration 
@@ -142,16 +130,7 @@ public class Mover {
 }
 
 
-/**
- * Forces (Gravity and Fluid Resistence) with Vectors 
- * by Daniel Shiffman.  
- * 
- * Demonstration of multiple force acting on bodies (Mover class)
- * Bodies experience gravity continuously
- * Bodies experience fluid resistance when in "water"
- */
-
-// Liquid class 
+/* Class to slow down balls */
 class Liquid {
 
 

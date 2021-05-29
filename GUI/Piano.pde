@@ -5,8 +5,6 @@ class PianoKeyboard{
   int[] blackKeys = {1, 3, 6, 8, 10};
   int[] playedNotes;
 
-
-  
   void setup(){
   background(255);
     x = width*0.125; //<>//
@@ -36,14 +34,6 @@ class PianoKeyboard{
   for( int indexWK=0; indexWK < whiteKeys.length; indexWK++){
     stroke(1);
     float xPosition = x +indexWK * whiteWidth;
-    if(mouseX >= xPosition && mouseX <= xPosition+ whiteWidth && mouseY > y  && mouseY - y <= h &&
-    mousePressed && blackHover == xPosition){
-      fill(255,0,0);
-    } else if(mouseX > xPosition && mouseX <= xPosition+ whiteWidth && blackHover == -1  && mouseY > y  && mouseY - y <= h){
-      fill(255,250,200);
-    }else{
-      fill(255);
-    }
     
     if(isInArray(playedNotes, whiteKeys[indexWK])){
       fill(SECONDARY);
@@ -64,9 +54,7 @@ class PianoKeyboard{
       xPosition = xPosition + whiteWidth;
     }
     fill(0);
-    if(mouseX > xPosition && mouseX <= xPosition + blackWidth && mouseY > y  && mouseY - y  <= blackHeight){
-      
-    }
+    
     if (isInArray(playedNotes, blackKeys[indexBK])){
       fill(SECONDARY);
     }
@@ -74,24 +62,24 @@ class PianoKeyboard{
       fill(0);
     }
     rect(xPosition, y, blackWidth, blackHeight);
-  }
-  
+  } 
 }
 
-void setPlayedNote(int[] indexes){
-  playedNotes = indexes;
-  println("Test: " + isInArray(playedNotes, 0));
-
-}
-
-boolean isInArray( int[] playedNotes, int note){
-   for (int i = 0; i < playedNotes.length; i++){
-       if (playedNotes[i] == note){
-         return true;
+    /* Method to set note played by midi */
+    void setPlayedNote(int[] indexes){
+      playedNotes = indexes;
+      println("Test: " + isInArray(playedNotes, 0));
+    
+    }
+    /* Method to see if note played is in array */
+    boolean isInArray( int[] playedNotes, int note){
+       for (int i = 0; i < playedNotes.length; i++){
+           if (playedNotes[i] == note){
+             return true;
+           }
        }
-   }
-   return false;
-}
+       return false;
+    }
 
 
 

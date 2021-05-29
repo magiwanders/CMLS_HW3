@@ -36,15 +36,6 @@ void cp5Init() {
   
   int h = height / 18;
   int w = width / 10;
- 
-
-  /* TITLE */
-  /*Title = cp5.addTextlabel("Title")
-                    .setText("Delphinator.")
-                    .setPosition(width * 0.40, height * 0.03)
-                    .setColorValue(0xffffff00)
-                    .setFont(createFont("Euclid-Italic",30))
-                    ;*/
   
   /* TOP BUTTONS */
   onOffButton = cp5.addButton("OnOff")
