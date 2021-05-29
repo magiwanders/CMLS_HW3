@@ -38,7 +38,7 @@ void resetHarmonics() {
 
 void resetEffects(){
   for ( int i = 0; i < numEffects; i++ ){
-    effectsValues[i] = 0.5;
+    effectsValues[i] = 0.0;
   }
 }
 

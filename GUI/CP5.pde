@@ -64,10 +64,10 @@ void cp5Init() {
     .setLabel("MIDI")
     .setFont(createFont("Consolas",12));
   
-  A = cp5.addButton("A")
+  A = cp5.addButton("C")
     .setWidth(h)
     .setHeight(h)
-    .setLabel("Play A")
+    .setLabel("Play C")
     .setPosition(width * 0.85, height * 0.03)
     .setFont(createFont("Consolas",12));
    
@@ -152,10 +152,10 @@ void cp5Init() {
   }
 }
 
-public void A() {
+public void C() {
   aIsActive = !aIsActive;
   int msg = aIsActive ? 1 : 0;
-  sendMsgOSC("/playA", (float)msg);
+  sendMsgOSC("/playC", (float)msg);
   println("aIsActive è: " + aIsActive);
 }
 
