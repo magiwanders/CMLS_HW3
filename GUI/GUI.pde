@@ -14,7 +14,7 @@ BubbleNotes bubbleNotes = new BubbleNotes();
 StereoWidth stereoWidth = new StereoWidth();
 
 public color PRIMARY = color(11, 78, 108);
-public color SECONDARY = color(255, 111, 45);
+public color SECONDARY = color(245, 158, 36);
 public color ACTIVE = color(50, 150, 150);
 public color BACKGROUND = color(0,14,41);
 

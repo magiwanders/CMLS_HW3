@@ -13,7 +13,7 @@ DropdownNote[] thirdDropdownNote = new DropdownNote[musicalDropdownNotes.length]
 Textlabel[] note = new Textlabel[musicalDropdownNotes.length];
 Textlabel Title;
 
-Button midiButton, onOffButton, A;
+Button midiButton, onOffButton, C;
 
 
 Slider[] effect = new Slider[effectsList.length];
@@ -21,7 +21,7 @@ Slider gain;
 
 boolean isOn = false;
 public boolean isMidi = false;
-boolean aIsActive = false;
+boolean cIsActive = false;
 boolean isFirstHarmonic = false;
 boolean isSecondHarmonic = false;
 boolean isThirdHarmonic = false;
@@ -29,6 +29,7 @@ boolean isThirdHarmonic = false;
 
 color colorMidi = PRIMARY;
 color colorOnOff = PRIMARY;
+color colorC = PRIMARY;
 
 void cp5Init() {
   cp5 = new ControlP5(this);
@@ -51,7 +52,7 @@ void cp5Init() {
   .setHeight(h)
   .setLabel("On/Off")
   .setColorBackground(colorMidi)
-  .setColorActive(color(121, 204, 242))
+  .setColorActive(ACTIVE)
   .setPosition(width * 0.25, height * 0.06)
   .setFont(createFont("Consolas",12));
   
@@ -64,9 +65,11 @@ void cp5Init() {
     .setLabel("MIDI")
     .setFont(createFont("Consolas",12));
   
-  A = cp5.addButton("C")
+  C = cp5.addButton("C")
     .setWidth(h)
     .setHeight(h)
+    .setColorBackground(colorC)
+    .setColorActive(ACTIVE)
     .setLabel("Play C")
     .setPosition(width * 0.85, height * 0.03)
     .setFont(createFont("Consolas",12));
@@ -119,6 +122,9 @@ void cp5Init() {
      .setSize((int)wEffect,(int)hEffect)  
      .setRange(0,100)
      .setValue(0)
+     .setColorBackground(PRIMARY)
+     .setColorForeground(color(255))
+     .setColorValue(SECONDARY)
      .setFont(createFont("Consolas",15));
      
   }
@@ -142,6 +148,8 @@ void cp5Init() {
      .setSize((int)wEffect,(int)hEffect)  
      .setRange(0,100)
      .setValue(50)
+     .setColorBackground(PRIMARY)
+     .setColorForeground(SECONDARY)
      .setFont(createFont("Consolas",15));
   
   }
@@ -152,13 +160,24 @@ void cp5Init() {
   }
 }
 
+/* ---- Methods to active buttons ---- */
+
+//Play C Button
 public void C() {
-  aIsActive = !aIsActive;
-  int msg = aIsActive ? 1 : 0;
+  cIsActive = !cIsActive;
+  if(cIsActive == true){
+    colorC = SECONDARY;
+  } else {
+    colorC = PRIMARY;
+  }
+  
+  C.setColorBackground(colorC);
+  int msg = cIsActive ? 1 : 0;
   sendMsgOSC("/playC", (float)msg);
-  println("aIsActive è: " + aIsActive);
+  println("aIsActive è: " + cIsActive);
 }
 
+//OnOff Button
 public void OnOff() {
   isOn = !isOn;
   if(isOn == true){
@@ -173,6 +192,7 @@ public void OnOff() {
   println("IsOn è: " + isOn);
 }
 
+//Midi Button
 public void Midi(){
   isMidi = !isMidi;
   int msg = isMidi ? 1 : 0;
@@ -187,7 +207,7 @@ public void Midi(){
   println("Midi è: " + isMidi);
 }
 
-/*Methods to hide elements*/
+/* ---- Methods to hide elements ---- */
 
 public void textHide(){
   for (int i = 0; i < musicalDropdownNotes.length; i++){
@@ -203,7 +223,7 @@ public void dropdownHide(){
     }
 }
 
-/* Methods to show elements*/
+/* ---- Methods to show elements ---- */
 
 public void textShow(){
   for (int i = 0; i < musicalDropdownNotes.length; i++){
@@ -219,7 +239,7 @@ public void dropdownShow(){
     }
 }
 
-/* Method to take sliders' and dropdowns' value */
+/* ---- Method to take sliders' and dropdowns' value ---- */
 
 public void controlEvent(ControlEvent theEvent) {
   // DropdownList is of type ControlGroup.
@@ -255,8 +275,6 @@ public void controlEvent(ControlEvent theEvent) {
        note = thirdDropdownNote[i].getItem((int) n);
        index = i;
       }
-      
-      /* IF ALL'INTERNO DEL FOR, MANDA 12 VOLTE LO STESSO MESSAGGIO - SICURI SIA GIUSTO? */
     }
     
     if (row != 0 ) {
