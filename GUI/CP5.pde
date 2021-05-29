@@ -15,6 +15,7 @@ Textlabel Title;
 
 Button midiButton, onOffButton, A;
 
+
 Slider[] effect = new Slider[effectsList.length];
 Slider gain;
 
@@ -25,12 +26,17 @@ boolean isFirstHarmonic = false;
 boolean isSecondHarmonic = false;
 boolean isThirdHarmonic = false;
 
+
+color colorMidi = PRIMARY;
+color colorOnOff = PRIMARY;
+
 void cp5Init() {
   cp5 = new ControlP5(this);
   
   int h = height / 18;
   int w = width / 10;
-  
+ 
+
   /* TITLE */
   Title = cp5.addTextlabel("Title")
                     .setText("Delphinator.")
@@ -44,6 +50,8 @@ void cp5Init() {
   .setWidth(w)
   .setHeight(h)
   .setLabel("On/Off")
+  .setColorBackground(colorMidi)
+  .setColorActive(color(121, 204, 242))
   .setPosition(width * 0.25, height * 0.06)
   .setFont(createFont("Consolas",12));
   
@@ -51,7 +59,7 @@ void cp5Init() {
     .setWidth(w)
     .setHeight(h)
     .setPosition(width * 0.55, height * 0.06)
-    .setColorBackground(color(100, 100, 100))
+    .setColorBackground(colorMidi)
     .setColorActive(color(50, 150, 150))
     .setLabel("MIDI")
     .setFont(createFont("Consolas",12));
@@ -153,6 +161,13 @@ public void A() {
 
 public void OnOff() {
   isOn = !isOn;
+  if(isOn == true){
+    colorOnOff = SECONDARY;
+  } else {
+    colorOnOff = PRIMARY;
+  }
+  
+  onOffButton.setColorBackground(colorOnOff);
   int msg = isOn ? 1 : 0;
   sendMsgOSC("/onOff", (float)msg);
   println("IsOn è: " + isOn);
@@ -161,6 +176,13 @@ public void OnOff() {
 public void Midi(){
   isMidi = !isMidi;
   int msg = isMidi ? 1 : 0;
+   if(isMidi == true){
+    colorMidi = SECONDARY;
+  } else {
+    colorMidi = PRIMARY;
+  }
+  
+  midiButton.setColorBackground(colorMidi);
   sendMsgOSC("/MIDIonOff", (float)msg);
   println("Midi è: " + isMidi);
 }

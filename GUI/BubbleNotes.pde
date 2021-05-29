@@ -188,7 +188,7 @@ class Liquid {
 
   void display() {
     noStroke();
-    fill(color(20,20,20));
+    fill(BACKGROUND);
     rect(x, y, w, h);
   }
 }

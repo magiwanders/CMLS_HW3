@@ -19,7 +19,7 @@ public class StereoWidth{
   void init() {
 
     rectMode(CENTER);
-    fill(color(20,20,20));
+    fill(BACKGROUND);
     rect(xPan, yPan, dPan, dPan, rounded);
     
   }

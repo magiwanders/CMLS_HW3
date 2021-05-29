@@ -4,12 +4,19 @@ void settings() {
   // Processing settings
   size((int)screenWidth, (int) screenHeight, P2D);
   smooth(24);
+
+
 }
 
 PFont customFont;
 PianoKeyboard pianoKeyboard = new PianoKeyboard();
 BubbleNotes bubbleNotes = new BubbleNotes();
 StereoWidth stereoWidth = new StereoWidth();
+
+public color PRIMARY = color(11, 78, 108);
+public color SECONDARY = color(255, 111, 45);
+public color ACTIVE = color(50, 150, 150);
+public color BACKGROUND = color(0,14,41);
 
 void setup(){
   customFont = createFont("Consolas", 20);
@@ -29,7 +36,7 @@ void setup(){
 
 
 void draw(){
-  background(color(20,20,20));
+  background(BACKGROUND);
   stereoWidth.init();
   if(isMidi == true){       //Midi GUI
     pianoKeyboard.draw();
