@@ -39,12 +39,12 @@ void cp5Init() {
  
 
   /* TITLE */
-  Title = cp5.addTextlabel("Title")
+  /*Title = cp5.addTextlabel("Title")
                     .setText("Delphinator.")
                     .setPosition(width * 0.40, height * 0.03)
                     .setColorValue(0xffffff00)
                     .setFont(createFont("Euclid-Italic",30))
-                    ;
+                    ;*/
   
   /* TOP BUTTONS */
   onOffButton = cp5.addButton("OnOff")
@@ -253,9 +253,9 @@ public void controlEvent(ControlEvent theEvent) {
   if (theEvent.isGroup()) {
     // check if the Event was triggered from a ControlGroup
     println("event from group : "+theEvent.getGroup().getValue()+" from "+theEvent.getGroup());
-    println("event from controller : "+theEvent.getGroup().getCaptionLabel().getText()+" from "+theEvent.getController());
+    println("event from controller : "+theEvent.getGroup().getCaptionLabel().getText()+" from "+theEvent.getGroup());
   } 
-  else if (theEvent.isController()) {
+  else {
     float n = theEvent.getController().getValue();
     String name = theEvent.getController().getCaptionLabel().getText();
     for (int i = 0; i < musicalDropdownNotes.length; i++){

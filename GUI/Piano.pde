@@ -1,4 +1,4 @@
-public class PianoKeyboard{
+class PianoKeyboard{
   
   float x, y, w, h;
   int[] whiteKeys = {0, 2, 4, 5, 7, 9, 11};
@@ -7,18 +7,18 @@ public class PianoKeyboard{
 
 
   
-  public void setup(){
+  void setup(){
   background(255);
-    x = width*0.2;
+    x = width*0.125; //<>//
     y = height*0.2;
     w = width*0.6;
     h = height*0.35;
     playedNotes  = new int[]{-1,-1,-1};
+    
 }
   
   void draw(){
   rectMode(0);
-    
   int whiteWidth= (int)w/8;
   float blackHeight= h*3/5;
   float blackWidth= whiteWidth/2;
@@ -35,7 +35,7 @@ public class PianoKeyboard{
   /* Draw White Key */
   for( int indexWK=0; indexWK < whiteKeys.length; indexWK++){
     stroke(1);
-    float xPosition = width*0.07 +indexWK * whiteWidth;
+    float xPosition = x +indexWK * whiteWidth;
     if(mouseX >= xPosition && mouseX <= xPosition+ whiteWidth && mouseY > y  && mouseY - y <= h &&
     mousePressed && blackHover == xPosition){
       fill(255,0,0);
@@ -55,7 +55,7 @@ public class PianoKeyboard{
   }
   
   /* Draw Black Key */
-  float marginLeft = width*0.07;
+  float marginLeft = x;
   float xPosition = marginLeft - blackWidth/2;
   for (int indexBK = 0; indexBK < blackKeys.length; indexBK++){
     
