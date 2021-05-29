@@ -20,6 +20,7 @@ public color BACKGROUND = color(0,14,41);
 
 void setup(){
   customFont = createFont("Consolas", 20); //<>//
+  surface.setTitle("Choirify - Always one more note");
     
   //setup components
   pianoKeyboard.setup();

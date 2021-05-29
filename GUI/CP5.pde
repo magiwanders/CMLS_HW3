@@ -27,9 +27,9 @@ boolean isSecondHarmonic = false;
 boolean isThirdHarmonic = false;
 
 
-color colorMidi = PRIMARY;
-color colorOnOff = PRIMARY;
-color colorC = PRIMARY;
+color colorMidi = color(11, 78, 108);;
+color colorOnOff = color(11, 78, 108);;
+color colorC = color(11, 78, 108);;
 
 void cp5Init() {
   cp5 = new ControlP5(this);
