@@ -211,8 +211,9 @@ SynthDef.new(\chorusEffect, {
 	lfos = Array.fill(num, {SinOsc.ar(rate * rrand(0.95, 1.05), rrand(0.0, 1.0), (maxDelay * 0.5) - minDelay,  (maxDelay * 0.5) + minDelay)});
 
 	voices = Mix.ar(DelayC.ar(input, maxDelay, lfos));
-    mixChorused = ((1 - wetC) * input) + (wetC * voices);
+    //mixChorused = ((1 - wetC) * input) + (wetC * voices);
 
+	mixChorused = Mix([input*(1-wetC), wetC*voices]);
     Out.ar(outputBus, mixChorused);
 }).send(s);
 
@@ -229,8 +230,9 @@ SynthDef.new(\flangerEffect, {
 
 	source = In.ar(inputBus, 1);
 	flanged = CombC.ar(source, maxDelay, SinOsc.ar(rate, 0, (maxDelay * 0.5) - minDelay, (maxDelay * 0.5) + minDelay), decayTime, amp);
-	mixFlanged = source * (1 - wetF) + (flanged * wetF);
+	//mixFlanged = source * (1 - wetF) + (flanged * wetF);
 
+	mixFlanged = Mix([source*(1-wetF), flanged*wetF]);
     Out.ar(outputBus, mixFlanged);
 }).send(s);
 
@@ -246,8 +248,9 @@ SynthDef.new(\phaserEffect, {
 
 	source = In.ar(inputBus, 1); // get two channels of input starting (and ending) on bus 0
 	phased = AllpassN.ar(source, 0.02, SinOsc.kr(freq, 0, 0.01, 0.01)); // max delay of 20msec
-	mixPhased = source * (1 - wetP) + (phased * wetP);
+	//mixPhased = source * (1 - wetP) + (phased * wetP);
 
+	mixPhased = Mix([source*(1-wetP), phased*wetP]);
     Out.ar(outputBus, mixPhased); // adds to bus 0 where original signal is already playing
 }).send(s);
 
@@ -264,7 +267,8 @@ SynthDef.new(\saturationEffect, {
 	saturated = in;
 	saturated = saturated.distort;
 
-	mixSaturated = in + saturated*wetS;
+	//mixSaturated = in + saturated*wetS;
+	mixSaturated = Mix([in*(1-wetS), saturated*wetS]);
     Out.ar(outputBus, mixSaturated);
 }).send(s);
 
@@ -283,11 +287,13 @@ SynthDef.new(\reverbEffect, {
 	source = In.ar(inputBus, 1);
 	reverb = GVerb.ar(source, 20, 6, 0.5, 1, 100, dry, 0.5, 0.4);
 
-	mixReverbed = (reverb * wetR) + source * (1 - wetR);
+	//mixReverbed = (reverb * wetR) + source * (1 - wetR);
+    mixReverbed = Mix([source*(1-wetR), reverb*wetR]);
+
     Out.ar(outputBus, mixReverbed);
 }).send(s);
 
-
+/*
 SynthDef.new(\delayEffect, {
     |
     inputBus, outputBus, wetD = 0
@@ -303,6 +309,20 @@ SynthDef.new(\delayEffect, {
 
 	mixDelayed = (delay * wetD) + source * (1 - wetD);
     Out.ar(outputBus, mixDelayed);
+}).send(s);
+
+*/
+SynthDef(\delayEffect, {
+	|
+    inputBus, outputBus, wetD = 0
+    |
+	var sig, delay,  maxdeltime=0.2, deltime=0.5, mix=(-1), decay=2;
+
+    sig = In.ar(inputBus);
+    delay = CombC.ar(sig, maxdeltime, deltime, decay);
+	sig = Mix([sig*(1-wetD), delay*wetD]);
+	//sig = (1-wetD)*sig + wetD*delay;
+	Out.ar(outputBus,sig);
 }).send(s);
 
 
@@ -356,6 +376,8 @@ b.sendMsg("/superOn", 1);
 ~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
 
 ~x;
+~dlIn.scope;
+
 )
 
 
