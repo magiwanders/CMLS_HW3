@@ -43,12 +43,9 @@ s.reboot;
 
 
 SynthDef(\sampleNote, {
-	|
-	outputBus
-	|
 	var out, freq = 261.6;
 	out = SinOsc.ar(freq, 1);
-	Out.ar(outputBus, out);
+	Out.ar([0,1], out);
 }).send(s);
 
 
@@ -378,7 +375,6 @@ b.sendMsg("/superOn", 1);
 ~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
 
 ~x;
-~revIn.scope;
 
 )
 
@@ -487,7 +483,7 @@ var setMidiNotes = {
 var playC = {
 	|msg|
 	if ( msg[1] == 1, {
-		~x = Synth(\sampleNote, [\outputBus, ~satIn]);
+		~x = Synth(\sampleNote);
 	},
 	{
 		~x.free;
