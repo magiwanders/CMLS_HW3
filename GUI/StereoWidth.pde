@@ -2,28 +2,32 @@ import java.text.DecimalFormat;
 
 public class StereoWidth{
     
-  float xPad, yPad, dPad, rounded;
+  float xPan, yPan, dPan, rounded;
   
   public void setup() {
     frameRate(200);
-    xPad = width * 0.82;
-    yPad = height * 0.3 + (7 * height * 0.07);
-    dPad = width * 0.05;
+    xPan = width * 0.82;
+    yPan = height * 0.3 + (7 * height * 0.07);
+    dPan = width * 0.05;
     rounded = 1;
+    stroke(255);
+    strokeWeight(5);
+    
+
   }
   
   void init() {
-    stroke(255);
-    strokeWeight(5);
+
     rectMode(CENTER);
+    fill(color(20,20,20));
+    rect(xPan, yPan, dPan, dPan, rounded);
     
-    rect(xPad, yPad, dPad, dPad, rounded);
-    noFill();
   }
-  
+  float i = 0;
   public void reSize(float e){
-  if(dPad > width * 0.03 && dPad < width * 0.1){
-    dPad = dPad + (e*5);
+  i = i + (e*5);
+  if(i > width * 0.03 && i < width * 0.1){
+    dPan = i;
     if( rounded > 0){
       rounded = rounded + (e*5);  
     } else {
@@ -31,16 +35,16 @@ public class StereoWidth{
     }
     
   } else {
-    if (dPad == width * 0.03 || dPad < width * 0.03 ){
-      dPad =  width * 0.03 + 1;
+    if (i < width * 0.03 ){
+      i =  width * 0.03 + 0.01;
     } else {
-      dPad = width * 0.1 - 1;
+      i = width * 0.1 - 0.1;
     }
   }
   
-  println(dPad);
+  println(dPan);
   
-  float msg = (dPad - width*0.03) / (width * 0.1 - width * 0.03);
+  float msg = (dPan - width*0.03) / (width * 0.1 - width * 0.03);
   
   msg = round(msg*10)/10.0;
   

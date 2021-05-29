@@ -18,9 +18,10 @@ void setup(){
   text("LOADING . . .", width/2.3, height/2);
   cp5Init();
   controllerInit();
+  stereoWidth.setup();
   pianoKeyboard.setup();
   bubbleNotes.setup();
-  stereoWidth.setup();
+  
   
 
 
@@ -29,7 +30,7 @@ void setup(){
 
 void draw(){
   background(color(20,20,20));
-  
+  stereoWidth.init();
   if(isMidi == true){       //Midi GUI
     pianoKeyboard.draw();
     bubbleNotes.draw();
@@ -40,7 +41,7 @@ void draw(){
     dropdownShow();
     cp5.draw();
   }
-  stereoWidth.init();
+  
 
 }
 
