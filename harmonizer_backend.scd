@@ -8,9 +8,9 @@ s.reboot;
 ~table = Array.fill(12, {arg i; i + 60}); // [60,61,...,71]
 
 // define a table of mapped notes (Default values)
-~mapped = Array.fill(12, {arg i; i + 52}); // starts from e3
-~mapped2 = Array.fill(12, {arg i; i + 55});
-~mapped3 = Array.fill(12, {arg i; i + 59});
+~mapped = Array.fill(12, {arg i; i + 64}); // starts from e3
+~mapped2 = Array.fill(12, {arg i; i + 67});
+~mapped3 = Array.fill(12, {arg i; i + 71});
 
 ~midiON = 0;
 
@@ -23,6 +23,16 @@ s.reboot;
 ~diffbuf2 = Buffer.loadCollection(s, ~table, action:{|msg| msg.postln;});
 ~difference3 = Array.fill(~table.size, {0});
 ~diffbuf3 = Buffer.loadCollection(s, ~table, action:{|msg| msg.postln;});
+
+~difference.do({arg item, i;   ~difference[i] = (~table[i] - ~mapped[i]).midiratio.reciprocal; });
+~difference2.do({arg item, i;  ~difference2[i] = (~table[i] - ~mapped2[i]).midiratio.reciprocal;});
+~difference3.do({arg item, i; ~difference3[i] = (~table[i] - ~mapped3[i]).midiratio.reciprocal;});
+
+~diffbuf.setn(0, ~difference);
+~diffbuf2.setn(0, ~difference2);
+~diffbuf3.setn(0, ~difference3);
+
+~diffbuf.postln;
 
 )
 
@@ -63,6 +73,7 @@ SynthDef.new(\voiceTracker, {
 SynthDef.new(\harmonizerGUI,{
     |
     inputBus, inFreqBus,
+	buffer1, buffer2, buffer3
     voiceOutBus, harmonicsOutBus, gain = 0
     |
 
@@ -78,9 +89,9 @@ SynthDef.new(\harmonizerGUI,{
 
     // the shift quantities used to compute the new pitch shifted harmonies
 
-	shift1 = WrapIndex.kr(~diffbuf.bufnum, fundamental);
-	shift2 = WrapIndex.kr(~diffbuf2.bufnum, fundamental);
-	shift3 = WrapIndex.kr(~diffbuf3.bufnum, fundamental);
+	shift1 = WrapIndex.kr(buffer1, fundamental);
+	shift2 = WrapIndex.kr(buffer2, fundamental);
+	shift3 = WrapIndex.kr(buffer3, fundamental);
 
     partials = [
            0.5*shift1,
@@ -330,7 +341,7 @@ b.sendMsg("/superOn", 1);
 ~outputGroup = Group.after(~effetcsGroup);
 
 // instances of the various model Synth
-~harmonizer = Synth.new(\harmonizerGUI, [\inputBus, ~trackerOut, \inFreqBus, ~fundamentalBus, \voiceOutBus, ~finalBus, \harmonicsOutBus, ~harmonizerOut], ~harmonizerGroup );
+~harmonizer = Synth.new(\harmonizerGUI, [\inputBus, ~trackerOut, \inFreqBus, ~fundamentalBus, \voiceOutBus, ~finalBus, \harmonicsOutBus, ~harmonizerOut, \buffer1, ~diffbuf.bufnum, \buffer2, ~diffbuf2.bufnum, \buffer3, ~diffbuf3.bufnum ], ~harmonizerGroup );
 ~panning = Synth.new(\panning, [\inputBus, ~harmonizerOut, \outputBus, ~chIn], ~panningGroup );
 
 
@@ -345,9 +356,6 @@ b.sendMsg("/superOn", 1);
 ~finalSum = Synth.new(\finalSum, [\inputBus, ~finalBus], ~outputGroup);
 
 ~x;
-
-~revIn.scope;
-
 )
 
 
@@ -431,7 +439,8 @@ var midiOnOff = {
 		{
 			~midiOn = 0;
 			~harmonizer.free;
-			~harmonizer = Synth.new(\harmonizerGUI, [\inputBus, ~trackerOut, \inFreqBus, ~fundamentalBus, \voiceOutBus, ~finalBus, \harmonicsOutBus, ~harmonizerOut], ~harmonizerGroup);
+			~harmonizer = Synth.new(\harmonizerGUI, [\inputBus, ~trackerOut, \inFreqBus, ~fundamentalBus, \voiceOutBus, ~finalBus, \harmonicsOutBus, ~harmonizerOut,
+				\buffer1, ~diffbuf.bufnum, \buffer2, ~diffbuf2.bufnum, \buffer3, ~diffbuf3.bufnum], ~harmonizerGroup);
 		}
 	);
 	msg.postln;
