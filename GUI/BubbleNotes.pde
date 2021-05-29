@@ -64,7 +64,7 @@ public class BubbleNotes{
     
     if (!Arrays.asList(note).contains(null)){
       for (int i = 0; i < movers.length; i++) {
-          movers[i] = new Mover(random(2, 5), width*0.25+i*width*0.08, 600, note[i]);
+          movers[i] = new Mover(random(2, 5), width*0.4+i*width*0.08, 600, note[i]);
        }
     }
   
