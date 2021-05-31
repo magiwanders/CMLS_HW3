@@ -1,4 +1,4 @@
-# CMLS HW2 - Choirify - "Always One More Note"
+# CMLS HW3 - Choirify - "Always One More Note"
 
 <p align="center">
   <img src="img/logo_light.png">
